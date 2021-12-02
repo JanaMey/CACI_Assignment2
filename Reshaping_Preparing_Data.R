@@ -6,9 +6,7 @@
 
 # Preliminary steps ==============================================================
 # Set the working directory ------------------------------------------------------
-path <- file.path("C:", "Users", "narin", "Dropbox", "TEACHING", 
-                  "CACI", "CACI_WS2122", "Assignments", "Assignment 2")
-
+path <- file.path(setwd("C:/Users/Lilli/Google Drive/2021CACI/Assignment02/CACI_Assignment2")) #path Lilli
 setwd(path)
 
 # Install and load the required libraries ----------------------------------------
@@ -17,6 +15,7 @@ pacman::p_load(reshape2, ggplot2, dplyr, stringr)
 # Load required dataset ----------------------------------------------------------
 data.wide <- read.csv("QuestionaireData_CityTrips.csv")
 
+summary(data.wide)
 head(data.wide)
 dim(data.wide) # 266 462
 
