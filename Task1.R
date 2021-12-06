@@ -2,7 +2,7 @@
 pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot)
 
 # Load required dataset ----------------------------------------------------------
-#data.wide <- read.csv("QuestionaireData_CityTrips.csv")# unn�tig, wir laden es von git mit urlfile
+#data.wide <- read.csv("QuestionaireData_CityTrips.csv")# unn?tig, wir laden es von git mit urlfile
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/QuestionaireData_CityTrips.csv?token=AIBBFR5OGL'
 data.wide <-read.csv(urlfile)
 str(data.wide)
@@ -155,46 +155,46 @@ head(data.long)
 str(data.long)
 
 data.eval <- data.long #copy the data
-missing.ids <- unique(subset(data.eval, is.na(friendly & historical &affordable
+
+####################################################################################################
+#ALTERNATIVE 1 (alle IDs rauswerfen, machen wir aber nicht: Gehe zu ALTERNATIVE 2)
+#missing.ids <- unique(subset(data.eval, is.na(friendly & historical &affordable
                                               &trendy  &`vibrant nightlife`&`delicious food`
                                               &`easy-to-get-around`&`good shopping`&`cultural events`
                                               &`interesting museums`&`too touristic`
                                               &`english-speaker-friendly`&clean &green &international  
                                               &fun &noisy &romantic &safe &beautiful))$id_unique)
-missing.ids
-length(missing.ids) #60 IDs haben mind. 1 NA in den Evaluationen bei mind. einer Stadt
+# missing.ids
+#length(missing.ids) #60 IDs haben mind. 1 NA in den Evaluationen bei mind. einer Stadt
 
-data.pref <- data.long #Was ist mit den Preferences?
-missing.ids2 <- unique(subset(data.pref, is.na(friendly & historical &affordable
+#data.pref <- data.long #Was ist mit den Preferences?
+#missing.ids2 <- unique(subset(data.pref, is.na(friendly & historical &affordable
                                                &trendy  &`vibrant nightlife`&`delicious food`
                                                &`easy-to-get-around`&`good shopping`&`cultural events`
                                                &`interesting museums`&`too touristic`
                                                &`english-speaker-friendly`&clean &green &international  
                                                &fun &noisy &romantic &safe &beautiful&Pref))$id_unique)
-length(missing.ids2) #72 IDs haben mind. 1 NA in den Evaluationen UND Preferences
+#length(missing.ids2) #72 IDs haben mind. 1 NA in den Evaluationen UND Preferences
 #ABER es reicht, wenn wir nur die Evaluationen rausstreichen, genügt, wenn die vollständig sind.
 
 #wie sehen die Daten mit Missing Values aus:
-missings.data.eval <- subset(data.eval, id_unique %in% missing.ids)
-missings.data.eval[order(missings.data.eval$id_unique), ]
+#missings.data.eval <- subset(data.eval, id_unique %in% missing.ids)
+#missings.data.eval[order(missings.data.eval$id_unique), ]
 #item non response. All survey non responses are already out. 
 #die meisten haben bei einer Stadt alles nicht ausgefüllt, einige nur Preferences nicht ausgefüllt
 
 #die IDs mit NAs in Evaluations entfernen
-data.eval <- subset(data.eval, !id_unique %in% missing.ids) #dann wird alles von der ID weggemacht
-dim(data.eval) #1236 25 -> 59 IDs entfernt -> 354 Rows entfernt
-summary(data.eval)
+#data.eval <- subset(data.eval, !id_unique %in% missing.ids) #dann wird alles von der ID weggemacht
+#dim(data.eval) #1236 25 -> 59 IDs entfernt -> 354 Rows entfernt
+#summary(data.eval)
+###################################################################################################
 
-
-#Alternativcode: nutzen wir nicht, ODER?
-#DIREKT OMIT ALL? -> Ne, alle IDs müssen raus, nicht nur die Rows wo NAs enthalten sind
-#einfach alle rauswerfen, die es gibt.
-#data.long.clean <- na.omit(data.long)
-#any(is.na(data.long.clean))
-#dim(data.long.clean) #1431 25 -> von 1596 sind 165 rausgefallen
-#length(unique(data.long.clean$id_unique)) #wir haben noch 210 IDs, von denen aber
-#nicht mehr jeweils alle 6 Städte enthalten sind. 
-
+#ALTERNATIVE 2
+#Wir werfen alle Rows raus, die NAs enthalte.
+data.eval <- na.omit(data.eval)
+any(is.na(data.eval)) #false
+dim(data.eval) #1431 25 -> von 1596 sind 165 rausgefallen
+length(unique(data.eval$id_unique)) #wir haben noch 264 von 266 IDs
 
 
 
@@ -210,7 +210,7 @@ dataMean
 
 #Question: Für alles weitere für die Pref-NAs den Mean einsetzen?
 
-#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj�hriege oder sehr alte auszuschlie�en
+#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
 ggplot(data = data.longer, aes(x = attribute, y = value)) +
   geom_boxplot() +
   facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
@@ -263,24 +263,26 @@ head(indivData)
 #indivData <- melt(indivData, id.vars = c("Sample", "ID", "id_unique"))
 
 #ID Abgleich: nur IDs in indivData lassen die auch in data.eval vorkommen
-length(unique(data.eval$id_unique)) # Anzahl Ids in long.data
-length(unique(indivData$id_unique)) # Anzahl Ids in individual.data
+length(unique(data.eval$id_unique)) # Anzahl Ids in long.data #264
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 266
 idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
 indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
-length(unique(indivData$id_unique))# test
+length(unique(indivData$id_unique))# test #264
 
 #Let's delete the NAs (survey non respondents)
 any(is.na(indivData)) #True
 indivData <- indivData[!is.na(indivData$Age), ] #deleted 4
+length(unique(indivData$id_unique)) #260
 any(is.na(indivData)) #False
-dim(indivData) #203 43
-head(indivData)
+dim(indivData) #260 43
 
 #=> wir haben jetzt 3 ids weniger in indivData als in data.eval
-# ich w�rde es erstmal so belassen
+# ich w?rde es erstmal so belassen
+#FRAGE: Zeile 272-277 VOR den ID Abgleich packen, damit beide Dataframes erstmal von
+#NAs bereinigt wurden und anschließend aneinander angeglichen werden können?
 
 #TODO:
-#Minderj�hriege entfernen
+#Minderj?hriege entfernen
 
 
 #SAVE PLOTS AND TABLES
@@ -289,3 +291,4 @@ png("Gender.png", width=300, height=400)
 plot(indivData$Gender)
 dev.off()
 
+#...
