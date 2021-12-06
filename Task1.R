@@ -1,13 +1,11 @@
-urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/QuestionaireData_CityTrips.csv?token=AIBBFR5OGL'
-df<-read.csv(urlfile)
-str(df)
-
 # Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot)
 
 # Load required dataset ----------------------------------------------------------
-data.wide <- read.csv("QuestionaireData_CityTrips.csv")
-
+#data.wide <- read.csv("QuestionaireData_CityTrips.csv")# unnötig, wir laden es von git mit urlfile
+urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/QuestionaireData_CityTrips.csv?token=AIBBFR5OGL'
+data.wide <-read.csv(urlfile)
+str(data.wide)
 head(data.wide)
 dim(data.wide) # 266 462
 
@@ -35,7 +33,8 @@ data.long <- data.wide %>%
          starts_with("Pref_")) # any column that starts with Pref_              
 
 head(data.long)
-dim(data.long) # 266 402
+dim(data.long) # 266 402 ====>>>>> ICH BEKOMME 423???
+str(data.long)
 
 # Reshape to long format
 data.long <- melt(data.long, id.vars = c("Sample", "ID", "id_unique"))
@@ -43,6 +42,7 @@ head(data.long)
 dim(data.long)
 
 # Let's delete the NAs
+is.na(data.long)
 data.long <- data.long[!is.na(data.long$value), ]
 dim(data.long)
 
@@ -54,7 +54,7 @@ dim(data.long)
 data.long$type <- ifelse(str_detect(data.long$variable, "_Att"), "Attribute", "Pref")
 head(data.long)
 
-
+data.long$id_unique
 # Now we want to create a column City which is the 1st part of the variable
 # string (before _) if it's type = "Attribute" and 2nd part (after _) if
 # it's type = "Pref"
@@ -126,7 +126,7 @@ length(unique(data.long$id_unique)) # 266
 
 # We can save this data frame separately as a csv and load and work with it later
 write.csv(data.long, file = "data_long.csv", row.names = FALSE)
-
+head(data.long)
 
 # Separate individual-level variables ============================================
 indivData <- data.wide %>% select(!contains("Pref") & !contains("_Att"))
@@ -210,9 +210,10 @@ dataMean
 
 #Question: FÃ¼r alles weitere fÃ¼r die Pref-NAs den Mean einsetzen?
 
-#Outliers:
+#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderjähriege oder sehr alte auszuschließen
 ggplot(data = data.longer, aes(x = attribute, y = value)) +
   geom_boxplot() +
+  facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
   stat_summary(fun = mean, geom = "point", color = "darkred") +
   labs(y = "") +
   theme_classic()
@@ -220,6 +221,7 @@ ggsave("Boxplot all Attributes.png", device="png", width = 16, height = 3)
 #Attribute aufteilen in zwei Plots, Ã¼bersichtlicher. But How?
 #Prefs muss raus, da andere Skalierung als die Evals!
 #removed 38 rows
+
 
 
 #Corrplot for Correlations
@@ -239,6 +241,7 @@ ggplot(data = data.longer, aes(y = attribute, x = value)) +
   theme_bw()
 #removed 515 rows ?!
 
+
 ggplot(data = data.longer, aes(y = City, x = value)) +
   geom_bar(stat = "summary", fun = "mean") + 
   geom_vline(data = dataMean, aes(xintercept = x),
@@ -251,31 +254,33 @@ ggplot(data = data.longer, aes(y = City, x = value)) +
 
 
 
-
+########################################################################
 #Sample description sociodemographics and City attributes and preferences
-#auch noch umwandeln und dieselben IDs rauswerfen !?
-
 indivData <- data.wide %>% select(!contains("Pref") & !contains("_Att"))
 summary(indivData)
 dim(indivData) #266 43
 head(indivData)
 #indivData <- melt(indivData, id.vars = c("Sample", "ID", "id_unique"))
 
+#ID Abgleich: nur IDs in indivData lassen die auch in data.eval vorkommen
+length(unique(data.eval$id_unique)) # Anzahl Ids in long.data
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data
+idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
+indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
+length(unique(indivData$id_unique))# test
+
 #Let's delete the NAs (survey non respondents)
 any(is.na(indivData)) #True
 indivData <- indivData[!is.na(indivData$Age), ] #deleted 4
 any(is.na(indivData)) #False
-dim(indivData) #262 43
+dim(indivData) #203 43
 head(indivData)
 
-#we have to: merge the dataframes by the ids that are still there
-length(unique(data.eval$id_unique)) #206 from 266 IDs
-length(unique(indivData$id_unique)) #262 from 266 IDs
-#from above:
-unique(missings.data.eval$id_unique) #these are the 60 IDs that got cut off from data.eval
-length(unique(missings.data.eval$id_unique))
+#=> wir haben jetzt 3 ids weniger in indivData als in data.eval
+# ich würde es erstmal so belassen
 
-#HOW TO DO??????
+#TODO:
+#Minderjähriege entfernen
 
 
 #SAVE PLOTS AND TABLES
@@ -283,3 +288,4 @@ indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
 png("Gender.png", width=300, height=400)
 plot(indivData$Gender)
 dev.off()
+
