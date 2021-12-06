@@ -159,21 +159,21 @@ data.eval <- data.long #copy the data
 ####################################################################################################
 #ALTERNATIVE 1 (alle IDs rauswerfen, machen wir aber nicht: Gehe zu ALTERNATIVE 2)
 #missing.ids <- unique(subset(data.eval, is.na(friendly & historical &affordable
-                                              &trendy  &`vibrant nightlife`&`delicious food`
-                                              &`easy-to-get-around`&`good shopping`&`cultural events`
-                                              &`interesting museums`&`too touristic`
-                                              &`english-speaker-friendly`&clean &green &international  
-                                              &fun &noisy &romantic &safe &beautiful))$id_unique)
+                                              # &trendy  &`vibrant nightlife`&`delicious food`
+                                              # &`easy-to-get-around`&`good shopping`&`cultural events`
+                                              # &`interesting museums`&`too touristic`
+                                              # &`english-speaker-friendly`&clean &green &international  
+                                              # &fun &noisy &romantic &safe &beautiful))$id_unique)
 # missing.ids
 #length(missing.ids) #60 IDs haben mind. 1 NA in den Evaluationen bei mind. einer Stadt
 
 #data.pref <- data.long #Was ist mit den Preferences?
 #missing.ids2 <- unique(subset(data.pref, is.na(friendly & historical &affordable
-                                               &trendy  &`vibrant nightlife`&`delicious food`
-                                               &`easy-to-get-around`&`good shopping`&`cultural events`
-                                               &`interesting museums`&`too touristic`
-                                               &`english-speaker-friendly`&clean &green &international  
-                                               &fun &noisy &romantic &safe &beautiful&Pref))$id_unique)
+                                               # &trendy  &`vibrant nightlife`&`delicious food`
+                                               # &`easy-to-get-around`&`good shopping`&`cultural events`
+                                               # &`interesting museums`&`too touristic`
+                                               # &`english-speaker-friendly`&clean &green &international  
+                                               # &fun &noisy &romantic &safe &beautiful&Pref))$id_unique)
 #length(missing.ids2) #72 IDs haben mind. 1 NA in den Evaluationen UND Preferences
 #ABER es reicht, wenn wir nur die Evaluationen rausstreichen, genügt, wenn die vollständig sind.
 
@@ -205,10 +205,9 @@ data.longer <- melt(data.eval, id.vars = c("id_unique", "ID", "Sample", "City"),
 head(data.longer)
 dataMean <- aggregate(data.longer[, "value"], na.rm=TRUE, 
                       by = list(attribute = data.longer$attribute), 
-                      FUN = mean)
+                      FUN = mean) #oder median
 dataMean
 
-#Question: Für alles weitere für die Pref-NAs den Mean einsetzen?
 
 #Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
 ggplot(data = data.longer, aes(x = attribute, y = value)) +
@@ -252,7 +251,14 @@ ggplot(data = data.longer, aes(y = City, x = value)) +
   theme_bw()
 #Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
 
-
+ggplot(data = data.longer, aes(y = City, x = value)) +
+  geom_bar(stat = "summary", fun = "mean") + 
+  geom_vline(data = dataMean, aes(xintercept = x),
+             linetype = "dashed") +
+  facet_wrap(attribute~.) +   
+  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+  labs(x = "", y = "") +
+  theme_bw()
 
 ########################################################################
 #Sample description sociodemographics and City attributes and preferences
@@ -262,27 +268,40 @@ dim(indivData) #266 43
 head(indivData)
 #indivData <- melt(indivData, id.vars = c("Sample", "ID", "id_unique"))
 
-#ID Abgleich: nur IDs in indivData lassen die auch in data.eval vorkommen
-length(unique(data.eval$id_unique)) # Anzahl Ids in long.data #264
-length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 266
-idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
-indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
-length(unique(indivData$id_unique))# test #264
 
 #Let's delete the NAs (survey non respondents)
 any(is.na(indivData)) #True
 indivData <- indivData[!is.na(indivData$Age), ] #deleted 4
-length(unique(indivData$id_unique)) #260
+length(unique(indivData$id_unique)) #262
 any(is.na(indivData)) #False
-dim(indivData) #260 43
+dim(indivData) #262 43
 
-#=> wir haben jetzt 3 ids weniger in indivData als in data.eval
-# ich w?rde es erstmal so belassen
-#FRAGE: Zeile 272-277 VOR den ID Abgleich packen, damit beide Dataframes erstmal von
-#NAs bereinigt wurden und anschließend aneinander angeglichen werden können?
+# #delete NAN mit omit => gleiches resultat
+# dim(indivData) 
+# indivData <- na.omit(indivData)
+# any(is.na(indivData)) #false
+# dim(indivData) 
+# length(unique(indivData$id_unique)) 
+
 
 #TODO:
 #Minderj?hriege entfernen
+
+#ID Abgleich: Schnittmenge ermitteln 
+#nur IDs in indivData lassen die auch in data.eval vorkommen
+length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 262
+idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
+indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
+length(unique(indivData$id_unique))# 260
+#"umgekehrte Richtung" zu Sicherheit: nur IDs in data.eval lassen die auch in IndivData vorkommen
+length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 260
+idList<- unique(indivData$id_unique) # Liste mit den ids aus long.data
+data.eval <- subset(data.eval, data.eval$id_unique %in% idList)# anpassung der Ids
+length(unique(data.eval$id_unique)) # wir haben noch 260 von 266 IDs
+
+
 
 
 #SAVE PLOTS AND TABLES
