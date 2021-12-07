@@ -196,6 +196,7 @@ any(is.na(data.eval)) #false
 dim(data.eval) #1431 25 -> von 1596 sind 165 rausgefallen
 length(unique(data.eval$id_unique)) #wir haben noch 264 von 266 IDs
 
+###################################################################################################
 
 
 #Mean
@@ -283,23 +284,31 @@ dim(indivData) #262 43
 # dim(indivData) 
 # length(unique(indivData$id_unique)) 
 
-
 #TODO:
-#Minderj?hriege entfernen
+#Minderj?hriege entfernen (Outlier)
+min(indivData$Age)
+max(indivData$Age)
+plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
+boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
+sort(indivData$Age) #1 11-Jähriger und 1 88-Jähriger
+subset(indivData, indivData$Age=="11") #ID 140
+subset(indivData, indivData$Age=="88") #ID 211
+indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
+dim(indivData) #Jetzt nur noch 260
 
 #ID Abgleich: Schnittmenge ermitteln 
-#nur IDs in indivData lassen die auch in data.eval vorkommen
-length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
-length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 262
-idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
-indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
-length(unique(indivData$id_unique))# 260
-#"umgekehrte Richtung" zu Sicherheit: nur IDs in data.eval lassen die auch in IndivData vorkommen
+#nur IDs in indivData lassen, die auch in data.eval vorkommen
 length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
 length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 260
+idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
+indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
+length(unique(indivData$id_unique))# 258
+#"umgekehrte Richtung" zu Sicherheit: nur IDs in data.eval lassen die auch in IndivData vorkommen
+length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 258
 idList<- unique(indivData$id_unique) # Liste mit den ids aus long.data
 data.eval <- subset(data.eval, data.eval$id_unique %in% idList)# anpassung der Ids
-length(unique(data.eval$id_unique)) # wir haben noch 260 von 266 IDs
+length(unique(data.eval$id_unique)) # wir haben noch 258 von 266 IDs
 
 
 
