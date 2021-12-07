@@ -86,15 +86,15 @@ for(d in dist_method){
     # Uncomment the line below to check step-by-step
     # m = mds_method[1]
     
+    # use cmscale() for absolute and smacof for the rest
     temp <- mds(temp.dist, ndim = k, type = m)
     # mds() is the same as smacofSym()
-    
+      
     temp.coord <- temp$conf     # save the coordinates
     temp.stress <- temp$stress  # save the Stress-1 value
     
-    
     # save as a data frame with required additional info
-    temp.coord <- data.frame(station = rownames(temp.coord), # station names
+    temp.coord <- data.frame(City = rownames(temp.coord), # station names
                              mds_method = m,  # mds method
                              dist_method = d, # dissimilarity measure
                              temp.coord)
@@ -164,7 +164,7 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(friendly, historical) 
+profit.vector <- lm(cbind(friendly, historical) # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 summary(profit.vector) 
