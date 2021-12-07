@@ -198,18 +198,6 @@ length(unique(data.eval$id_unique)) #wir haben noch 264 von 266 IDs
 
 ###################################################################################################
 
-
-#Mean
-#merge to even longer format
-data.longer <- melt(data.eval, id.vars = c("id_unique", "ID", "Sample", "City"),
-                    variable.name = "attribute")
-head(data.longer)
-dataMean <- aggregate(data.longer[, "value"], na.rm=TRUE, 
-                      by = list(attribute = data.longer$attribute), 
-                      FUN = mean) #oder median
-dataMean
-
-
 #Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
 ggplot(data = data.longer, aes(x = attribute, y = value)) +
   geom_boxplot() +
@@ -284,7 +272,6 @@ dim(indivData) #262 43
 # dim(indivData) 
 # length(unique(indivData$id_unique)) 
 
-#TODO:
 #Minderj?hriege entfernen (Outlier)
 min(indivData$Age)
 max(indivData$Age)
@@ -310,13 +297,116 @@ idList<- unique(indivData$id_unique) # Liste mit den ids aus long.data
 data.eval <- subset(data.eval, data.eval$id_unique %in% idList)# anpassung der Ids
 length(unique(data.eval$id_unique)) # wir haben noch 258 von 266 IDs
 
+#JETZT KÖNNEN WIR MIT DIESEN 258 IDs WEITER ARBEITEN! :)
 
+#Mean for Evaluations
+#merge to even longer format
+data.longer <- melt(data.eval, id.vars = c("id_unique", "ID", "Sample", "City"),
+                    variable.name = "attribute")
+head(data.longer)
+dataMean <- aggregate(data.longer[, "value"], na.rm=TRUE, 
+                      by = list(attribute = data.longer$attribute), 
+                      FUN = mean) #oder median
+dataMean
 
-
-#SAVE PLOTS AND TABLES
-indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
-png("Gender.png", width=300, height=400)
-plot(indivData$Gender)
+#save Plots and Tables for respondent characteristics
+#Age
+summary(indivData$Age) #average 25 years old, 18 Minimum, 63 Maximum
+png("Age.png", width=300, height=400) #Variante 1
+plot(indivData$Age)
+dev.off()
+png("Age2.png", width=300, height=400) #Varante 2
+hist(indivData$Age,
+     main="",
+     xlab="Age",
+     ylab="Frequency")
 dev.off()
 
-#...
+#Gender
+indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
+png("Gender.png", width=300, height=450)
+plot(indivData$Gender)
+dev.off()
+summary(indivData$Gender) #148 Female, 110 Male
+
+#Occupation
+indivData[,"Occupation"] <- as.factor(indivData[,"Occupation"])
+summary(indivData$Occupation) #128 Master student, 64 Bachelor student, 50 Employed, 6 Self Employed,
+                              #5 PhD student,..
+
+#Number of Trips
+summary(indivData$Number_of_Trips) #Mean 3, max 5
+
+#Nationality
+indivData[,"Nationality"] <- as.factor(indivData[,"Nationality"])
+summary(indivData$Nationality) #119 German, 37 Russian, 25 Bulgarian, 9 British, 9 Taiwanese
+                                #5 Hungarian, 4 Spanish, Chinese and Danish, 3 American,..
+length(unique(indivData$Nationality)) #41 Nationalitäten
+
+#Partnership
+indivData[,"PartnershipStatus"] <- as.factor(indivData[,"PartnershipStatus"])
+summary(indivData$PartnershipStatus) #134 relationship, 105 single,, 17 married,..
+
+#CurrentCity
+indivData[,"CurrentCity"] <- as.factor(indivData[,"CurrentCity"])
+summary(indivData$CurrentCity) #123 Berlin most
+length(unique(indivData$CurrentCity)) #76
+
+#Average Budget
+summary(indivData$Avg_Budget) #2.039 mean
+
+#Travel destination: Where have you been?
+Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin
+Paris_count <- count(subset(indivData, indivData$Paris=="1"))       #166
+London_count <- count(subset(indivData, indivData$London=="1"))      #170
+Barcelona_count <- count(subset(indivData, indivData$Barcelona=="1"))   #145
+Madrid_count <- count(subset(indivData, indivData$Madrid=="1"))      #57
+Rome_count <- count(subset(indivData, indivData$Rome=="1"))        #118
+Stockholm_count <- count(subset(indivData, indivData$Stockholm=="1"))   #67
+Amsterdam_count <- count(subset(indivData, indivData$Amsterdam=="1"))   #143
+Prague_count <- count(subset(indivData, indivData$Prague=="1"))      #154
+Budapest_count <- count(subset(indivData, indivData$Budapest=="1"))    #93
+Lisbon_count <- count(subset(indivData, indivData$Lisbon=="1"))      #46
+Brussels_count <- count(subset(indivData, indivData$Brussels=="1"))    #82
+Vienna_count <- count(subset(indivData, indivData$Vienna=="1"))      #135
+StPetersburg_count <- count(subset(indivData, indivData$StPetersburg=="1"))#55
+Krakow_count <- count(subset(indivData, indivData$Krakow=="1"))      #45
+Riga_count <- count(subset(indivData, indivData$Riga=="1"))        #37
+Istanbul_count <- count(subset(indivData, indivData$Istanbul=="1"))    #59
+Geneva_count <- count(subset(indivData, indivData$Geneva=="1"))      #35
+Athens_count <- count(subset(indivData, indivData$Athens=="1"))      #48
+Dublin_count <- count(subset(indivData, indivData$Dublin=="1"))      #43
+
+names(indivData)
+
+list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_count,Barcelona_count,
+                                               Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
+                                               Prague_count,Budapest_count, Lisbon_count,Brussels_count,
+                                               Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
+                                               Istanbul_count,Geneva_count, Athens_count,Dublin_count))
+
+
+d <- data.frame(id=c("id1","id2","id3","id4","id15","id6","id7","id8","id9","id10","id11","id12","id13",
+                     "id14","id15","id16","id17","id18", "id19", "id20"),
+          x=c(Berlin_count,Paris_count,London_count,Barcelona_count,
+              Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
+              Prague_count,Budapest_count, Lisbon_count,Brussels_count,
+              Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
+              Istanbul_count,Geneva_count, Athens_count,Dublin_count),
+          y=indivData[1,4:23])
+#funktioniert noch nicht..
+
+
+head(indivData)
+
+
+#... still in progress
+
+#ignorieren
+#data.longer.indivData <- melt(indivData, id.vars = c("id_unique", "ID", "Sample", "Timestamp","Purpose1", "Purpose2"
+                                                     , "Purpose3", "Purpose4", "Purpose5", "Purpose_Other", "With_Whom_1",
+                                                     "With_Whom_2", "With_Whom_3", "With_Whom_4", "With_Whom_5", "Number_of_Trips",
+                                                     "Avg_Budget", "Age", "Gender", "Nationality", "CurrentCity", "Occupation",
+                                                     "PartnershipStatus"),
+                    variable.name = "City_visit")
+
