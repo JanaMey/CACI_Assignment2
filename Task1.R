@@ -328,20 +328,25 @@ png("Gender.png", width=300, height=450)
 plot(indivData$Gender)
 dev.off()
 summary(indivData$Gender) #148 Female, 110 Male
+148/258
 
 #Occupation
 indivData[,"Occupation"] <- as.factor(indivData[,"Occupation"])
 summary(indivData$Occupation) #128 Master student, 64 Bachelor student, 50 Employed, 6 Self Employed,
-                              #5 PhD student,..
+#5 PhD student,..
+prop.table(table(indivData$Occupation))
 
 #Number of Trips
-summary(indivData$Number_of_Trips) #Mean 3, max 5
+summary(indivData$Number_of_Trips) #Mean 3 -> 2-3 times
+
+table(indivData$Number_of_Trips, indivData$PartnershipStatus)
 
 #Nationality
 indivData[,"Nationality"] <- as.factor(indivData[,"Nationality"])
 summary(indivData$Nationality) #119 German, 37 Russian, 25 Bulgarian, 9 British, 9 Taiwanese
-                                #5 Hungarian, 4 Spanish, Chinese and Danish, 3 American,..
+#5 Hungarian, 4 Spanish, Chinese and Danish, 3 American,..
 length(unique(indivData$Nationality)) #41 Nationalitäten
+prop.table(table(indivData$Nationality))
 
 #Partnership
 indivData[,"PartnershipStatus"] <- as.factor(indivData[,"PartnershipStatus"])
@@ -349,22 +354,27 @@ summary(indivData$PartnershipStatus) #134 relationship, 105 single,, 17 married,
 
 #CurrentCity
 indivData[,"CurrentCity"] <- as.factor(indivData[,"CurrentCity"])
-summary(indivData$CurrentCity) #123 Berlin most
+summary(indivData$CurrentCity) #123 Berlin most 
+123/258
 length(unique(indivData$CurrentCity)) #76
 
 #Average Budget
 summary(indivData$Avg_Budget) #2.039 mean
 
 #Travel destination: Where have you been?
-Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin
+Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin 
+230/258 #89.15%
 Paris_count <- count(subset(indivData, indivData$Paris=="1"))       #166
+166/258 #64.34%
 London_count <- count(subset(indivData, indivData$London=="1"))      #170
+170/258 #65.89%
 Barcelona_count <- count(subset(indivData, indivData$Barcelona=="1"))   #145
 Madrid_count <- count(subset(indivData, indivData$Madrid=="1"))      #57
 Rome_count <- count(subset(indivData, indivData$Rome=="1"))        #118
 Stockholm_count <- count(subset(indivData, indivData$Stockholm=="1"))   #67
 Amsterdam_count <- count(subset(indivData, indivData$Amsterdam=="1"))   #143
 Prague_count <- count(subset(indivData, indivData$Prague=="1"))      #154
+154/258 #59.69%
 Budapest_count <- count(subset(indivData, indivData$Budapest=="1"))    #93
 Lisbon_count <- count(subset(indivData, indivData$Lisbon=="1"))      #46
 Brussels_count <- count(subset(indivData, indivData$Brussels=="1"))    #82
@@ -379,6 +389,8 @@ Dublin_count <- count(subset(indivData, indivData$Dublin=="1"))      #43
 
 names(indivData)
 
+### HILFE: die 20 Städte in einem neuen Dataframe darstellen -> Plot, in dem zu sehen ist, welche Stadt ###
+### am häufigsten besucht wurde:
 list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_count,Barcelona_count,
                                                Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
                                                Prague_count,Budapest_count, Lisbon_count,Brussels_count,
@@ -397,19 +409,26 @@ list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_
 #funktioniert noch nicht..
 
 
-head(indivData)
 
+#Purpose
+count(subset(indivData, indivData$Purpose1=="1")) #54 Visit family
+54/258 #20.93%
+count(subset(indivData, indivData$Purpose2=="1")) #131 Visit friends
+131/258 #50.77%
+count(subset(indivData, indivData$Purpose3=="1")) #63 Partying
+63/258 #24.42%
+count(subset(indivData, indivData$Purpose4=="1")) #232 Exploring a new city
+232/258 #89.92%
+count(subset(indivData, indivData$Purpose5=="1")) #112 Visiting various cultural events
+112/258 #43.41%
+count(subset(indivData, indivData$Purpose_Other=="1")) #0
 
-#... still in progress
-
-#ignorieren
-#data.longer.indivData <- melt(indivData, id.vars = c("id_unique", "ID", "Sample", "Timestamp","Purpose1", "Purpose2"
-#                                                    , "Purpose3", "Purpose4", "Purpose5", "Purpose_Other", "With_Whom_1",
-#                                                    "With_Whom_2", "With_Whom_3", "With_Whom_4", "With_Whom_5", "Number_of_Trips",
-#                                                    "Avg_Budget", "Age", "Gender", "Nationality", "CurrentCity", "Occupation",
-#                                                    "PartnershipStatus"),
-#                  variable.name = "City_visit")
-
+#With whom
+count(subset(indivData, indivData$With_Whom_1=="1")) #112 with family
+count(subset(indivData, indivData$With_Whom_2=="1")) #216 with friends
+count(subset(indivData, indivData$With_Whom_3=="1")) #146 with a partner
+count(subset(indivData, indivData$With_Whom_4=="1")) #16 with collegues
+count(subset(indivData, indivData$With_Whom_5=="1")) #69 by yourslelf
 
 
 ###################################################################
