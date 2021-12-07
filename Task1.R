@@ -155,6 +155,7 @@ head(data.long)
 str(data.long)
 
 data.eval <- data.long #copy the data
+write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
 
 ####################################################################################################
 #ALTERNATIVE 1 (alle IDs rauswerfen, machen wir aber nicht: Gehe zu ALTERNATIVE 2)
@@ -197,58 +198,6 @@ dim(data.eval) #1431 25 -> von 1596 sind 165 rausgefallen
 length(unique(data.eval$id_unique)) #wir haben noch 264 von 266 IDs
 
 ###################################################################################################
-
-#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
-ggplot(data = data.longer, aes(x = attribute, y = value)) +
-  geom_boxplot() +
-  facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
-  stat_summary(fun = mean, geom = "point", color = "darkred") +
-  labs(y = "") +
-  theme_classic()
-ggsave("Boxplot all Attributes.png", device="png", width = 16, height = 3)
-#Attribute aufteilen in zwei Plots, übersichtlicher. But How?
-#Prefs muss raus, da andere Skalierung als die Evals!
-#removed 38 rows
-
-
-
-#Corrplot for Correlations
-corrplot(cor(data.eval[, -c(1,2,3,4)]),
-         method = "number", 
-         type = "upper",
-         number.cex = 0.8,
-         tl.cex = 0.9)  
-
-#Barplot pro Sample. ähnliche Verteilung
-ggplot(data = data.longer, aes(y = attribute, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + # to plot the mean
-  geom_vline(xintercept = 3, linetype = "dashed") +
-  facet_wrap(Sample~.) +
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
-#removed 515 rows ?!
-
-
-ggplot(data = data.longer, aes(y = City, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + 
-  geom_vline(data = dataMean, aes(xintercept = x),
-             linetype = "dashed") +
-  facet_wrap(attribute~.) +   
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
-#Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
-
-ggplot(data = data.longer, aes(y = City, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + 
-  geom_vline(data = dataMean, aes(xintercept = x),
-             linetype = "dashed") +
-  facet_wrap(attribute~.) +   
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
-
 ########################################################################
 #Sample description sociodemographics and City attributes and preferences
 indivData <- data.wide %>% select(!contains("Pref") & !contains("_Att"))
@@ -308,6 +257,57 @@ dataMean <- aggregate(data.longer[, "value"], na.rm=TRUE,
                       by = list(attribute = data.longer$attribute), 
                       FUN = mean) #oder median
 dataMean
+
+#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
+ggplot(data = data.longer, aes(x = attribute, y = value)) +
+  geom_boxplot() +
+  facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
+  stat_summary(fun = mean, geom = "point", color = "darkred") +
+  labs(y = "") +
+  theme_classic()
+ggsave("Boxplot all Attributes.png", device="png", width = 16, height = 3)
+#Attribute aufteilen in zwei Plots, übersichtlicher. But How?
+#Prefs muss raus, da andere Skalierung als die Evals!
+#removed 38 rows
+
+
+
+#Corrplot for Correlations
+corrplot(cor(data.eval[, -c(1,2,3,4)]),
+         method = "number", 
+         type = "upper",
+         number.cex = 0.8,
+         tl.cex = 0.9)  
+
+#Barplot pro Sample. ähnliche Verteilung
+ggplot(data = data.longer, aes(y = attribute, x = value)) +
+  geom_bar(stat = "summary", fun = "mean") + # to plot the mean
+  geom_vline(xintercept = 3, linetype = "dashed") +
+  facet_wrap(Sample~.) +
+  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+  labs(x = "", y = "") +
+  theme_bw()
+#removed 515 rows ?!
+
+
+ggplot(data = data.longer, aes(y = City, x = value)) +
+  geom_bar(stat = "summary", fun = "mean") + 
+  geom_vline(data = dataMean, aes(xintercept = x),
+             linetype = "dashed") +
+  facet_wrap(attribute~.) +   
+  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+  labs(x = "", y = "") +
+  theme_bw()
+#Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
+
+ggplot(data = data.longer, aes(y = City, x = value)) +
+  geom_bar(stat = "summary", fun = "mean") + 
+  geom_vline(data = dataMean, aes(xintercept = x),
+             linetype = "dashed") +
+  facet_wrap(attribute~.) +   
+  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+  labs(x = "", y = "") +
+  theme_bw()
 
 #save Plots and Tables for respondent characteristics
 #Age
@@ -386,14 +386,14 @@ list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_
                                                Istanbul_count,Geneva_count, Athens_count,Dublin_count))
 
 
-d <- data.frame(id=c("id1","id2","id3","id4","id15","id6","id7","id8","id9","id10","id11","id12","id13",
-                     "id14","id15","id16","id17","id18", "id19", "id20"),
-          x=c(Berlin_count,Paris_count,London_count,Barcelona_count,
-              Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
-              Prague_count,Budapest_count, Lisbon_count,Brussels_count,
-              Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
-              Istanbul_count,Geneva_count, Athens_count,Dublin_count),
-          y=indivData[1,4:23])
+#d <- data.frame(id=c("id1","id2","id3","id4","id15","id6","id7","id8","id9","id10","id11","id12","id13",
+#                     "id14","id15","id16","id17","id18", "id19", "id20"),
+#          x=c(Berlin_count,Paris_count,London_count,Barcelona_count,
+#              Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
+#              Prague_count,Budapest_count, Lisbon_count,Brussels_count,
+#              Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
+#              Istanbul_count,Geneva_count, Athens_count,Dublin_count),
+#          y=indivData[1,4:23])
 #funktioniert noch nicht..
 
 
@@ -404,9 +404,9 @@ head(indivData)
 
 #ignorieren
 #data.longer.indivData <- melt(indivData, id.vars = c("id_unique", "ID", "Sample", "Timestamp","Purpose1", "Purpose2"
-                                                     , "Purpose3", "Purpose4", "Purpose5", "Purpose_Other", "With_Whom_1",
-                                                     "With_Whom_2", "With_Whom_3", "With_Whom_4", "With_Whom_5", "Number_of_Trips",
-                                                     "Avg_Budget", "Age", "Gender", "Nationality", "CurrentCity", "Occupation",
-                                                     "PartnershipStatus"),
-                    variable.name = "City_visit")
+#                                                    , "Purpose3", "Purpose4", "Purpose5", "Purpose_Other", "With_Whom_1",
+#                                                    "With_Whom_2", "With_Whom_3", "With_Whom_4", "With_Whom_5", "Number_of_Trips",
+#                                                    "Avg_Budget", "Age", "Gender", "Nationality", "CurrentCity", "Occupation",
+#                                                    "PartnershipStatus"),
+#                  variable.name = "City_visit")
 
