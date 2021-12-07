@@ -125,7 +125,7 @@ length(unique(data.long$id_unique)) # 266
 # item non-response: respondents didn't give an answer to this questions.
 
 # We can save this data frame separately as a csv and load and work with it later
-write.csv(data.long, file = "data_long.csv", row.names = FALSE)
+#write.csv(data.long, file = "data_long.csv", row.names = FALSE)
 head(data.long)
 
 # Separate individual-level variables ============================================
@@ -139,7 +139,7 @@ length(unique(data.long$City)) # 20
 
 
 # We can save this data frame separately as a csv and load and work with it later
-write.csv(indivData, file = "indivData.csv", row.names = FALSE)
+#write.csv(indivData, file = "indivData.csv", row.names = FALSE)
 
 
 
@@ -155,7 +155,7 @@ head(data.long)
 str(data.long)
 
 data.eval <- data.long #copy the data
-write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
+#write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
 
 ####################################################################################################
 #ALTERNATIVE 1 (alle IDs rauswerfen, machen wir aber nicht: Gehe zu ALTERNATIVE 2)
@@ -410,3 +410,10 @@ head(indivData)
 #                                                    "PartnershipStatus"),
 #                  variable.name = "City_visit")
 
+
+
+###################################################################
+# Am Ende von Task 1 Datensätze für die anderen Aufgaben speichern.
+data.eval[, -c(1, 2, 3, 4)] <- log(data.eval[, -c(1, 2, 3, 4)])
+write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
+write.csv(indivData, file = "indivData.csv", row.names = FALSE)
