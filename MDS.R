@@ -206,5 +206,56 @@ ggplot(data = subset(mds.selected, type == "point"),
   theme_bw()
 
 
+# Ideal-point Model -----------------------------------------------------------
+# Example for attributes informative and exciting
+# Add the quadratic term
+data.eval$q <- data.eval$dim1^2 + data.eval$dim2^2
+profit.ideal <- lm(cbind(friendly, historical) 
+                   ~ dim1 + dim2 + q, data = data.eval)
 
-# bei Zeile 524 weitermachen
+summary(profit.ideal) 
+param <- data.frame(t(coef(profit.ideal)))[, -1]
+param$City <- rownames(param)
+
+# Corrected!!! Was missing before, and now the computation of 
+# ideal points is correct
+param$dim1 <- -param$dim1/2*param$q
+param$dim2 <- -param$dim2/2*param$q
+
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "ideal"
+
+
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+
+
+
+#548 hier weitermachen
+# Plot
+ggplot(data = subset(mds.selected, type != "vector"), 
+       aes(x = dim1, y = dim2, col = type)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point(show.legend = FALSE) +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5,
+                   show.legend = FALSE) +
+  # Add circular contours
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & City == "exciting"), 
+                   aes(fill = station), expand = 0.1, show.legend = FALSE) +
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & station == "exciting"),
+                   aes(fill = station), expand = 0.2, show.legend = FALSE) +
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & station == "exciting"),
+                   aes(fill = station), expand = 0.4, show.legend = FALSE) +
+  scale_color_manual(values = c("darkblue", "black")) +
+  scale_fill_manual(values = c("white", "white")) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+
