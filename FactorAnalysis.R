@@ -5,3 +5,63 @@ urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivD
 indivData <-read.csv(urlfile)
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
 data.eval <-read.csv(urlfile)
+
+# Install and load the required libraries ----------------------------------------
+pacman::p_load(reshape2, ggplot2, corrplot, psych,
+               gplots, RColorBrewer, EFAtools, 
+               lavaan, semPlot, semTools)
+
+urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
+indivData <-read.csv(urlfile)
+urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
+data.eval <-read.csv(urlfile)
+
+head(indivData)
+dim(indivData) #258 43 stimmt das noch oder neue Werte durch Anpassung in A1?
+
+# Aufgabe 3 - Factor Analysis
+# ACHTUNG:  ES MÜSSEN NOCH DIE RICHTIGEN DATENSÄTZE VON A1 ERGÄNZT WERDEN
+
+# Investigate the Correlation Matrix - wieso Fehlermeldung?
+corrplot(cor(indivData[, -10]),
+         method = "number", 
+         type = "upper",
+         order = "hclust")
+
+# Alternative with Circles instead of numbers
+corrplot(cor(indivData[, -10]), type = "upper", order = "hclust")
+
+# Test KMO Criterion
+KMO(cor(indivData[, -10]))
+
+# Screeplot: Eigenvalues vs. number of factors
+plot(eigen(cor(indivData[, -10]))$values, 
+     type = "o",                 
+     xlab = "Number of factors",   
+     ylab = "Eigenvalues",
+     pch = 16)                        
+abline(h = 1, col = "grey")
+
+# Example Maximum Likelihood method for factor extraction
+ml.unrotated = fa(indivData[, -10], 
+                  fm = "ml",            
+                  nfactors = 2,         # here testing with different factors
+                  rotate = "none",      # rotation in next step
+                  scores ='regression') 
+
+ml.unrotated
+
+#orthagonal rotation - rotate values from above - insert values from Assignment 2
+ml.rotated = fa(indivData[, -10], 
+                fm = "ml",            
+                nfactors = 2,         
+                rotate = "varimax",   
+                scores ='regression') 
+
+ml.rotated
+
+# heatmaps for loading visualization
+heatmap.2(ml.rotated$loadings,
+          col = brewer.pal(9, "Greens"), 
+          trace="none", key = FALSE , dend = "none",
+          Colv = FALSE , cexCol = 1.2)
