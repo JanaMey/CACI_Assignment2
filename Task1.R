@@ -204,6 +204,7 @@ indivData <- data.wide %>% select(!contains("Pref") & !contains("_Att"))
 summary(indivData)
 dim(indivData) #266 43
 head(indivData)
+str(indivData)
 #indivData <- melt(indivData, id.vars = c("Sample", "ID", "id_unique"))
 
 
@@ -221,14 +222,23 @@ dim(indivData) #262 43
 # dim(indivData) 
 # length(unique(indivData$id_unique)) 
 
-#Minderj?hriege entfernen (Outlier)
+#AGE: Minderjaehriege entfernen (Outlier)
 min(indivData$Age)
 max(indivData$Age)
-plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
-boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
+length(unique(indivData)) # get number of age levels for number of bins 43
 sort(indivData$Age) #1 11-Jähriger und 1 88-Jähriger
 subset(indivData, indivData$Age=="11") #ID 140
 subset(indivData, indivData$Age=="88") #ID 211
+#plots
+plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
+boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
+ggplot(data = indivData, aes(x = Age, fill = Gender)) + #fill: variable for differencing ('target)
+  geom_histogram(bins = 43, col = "white") + # position dodge: next to each other
+  labs(x = "Age", y = "Frequency", fill = "Gender") +
+  grid(TRUE)+
+  scale_x_continuous(breaks = seq(0, 90, by = 5)) +
+  theme_classic(base_size = 10)# change size of text
+#Outlier eleminieren
 indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
 dim(indivData) #Jetzt nur noch 260
 
@@ -246,7 +256,7 @@ idList<- unique(indivData$id_unique) # Liste mit den ids aus long.data
 data.eval <- subset(data.eval, data.eval$id_unique %in% idList)# anpassung der Ids
 length(unique(data.eval$id_unique)) # wir haben noch 258 von 266 IDs
 
-#JETZT KÖNNEN WIR MIT DIESEN 258 IDs WEITER ARBEITEN! :)
+#JETZT KOENNEN WIR MIT DIESEN 258 IDs WEITER ARBEITEN! :)
 
 #Mean for Evaluations
 #merge to even longer format
@@ -258,14 +268,14 @@ dataMean <- aggregate(data.longer[, "value"], na.rm=TRUE,
                       FUN = mean) #oder median
 dataMean
 
-#Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
-ggplot(data = data.longer, aes(x = attribute, y = value)) +
-  geom_boxplot() +
-  facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
-  stat_summary(fun = mean, geom = "point", color = "darkred") +
-  labs(y = "") +
-  theme_classic()
-ggsave("Boxplot all Attributes.png", device="png", width = 16, height = 3)
+# #Outliers: => besser outliers bei befragten-merkmalen anweden z.B. Age um Minderj?hriege oder sehr alte auszuschlie?en
+# ggplot(data = data.longer, aes(x = attribute, y = value)) +
+#   geom_boxplot() +
+#   facet_wrap(attribute~., ncol = 7) + #to plot in 7 columns
+#   stat_summary(fun = mean, geom = "point", color = "darkred") +
+#   labs(y = "") +
+#   theme_classic()
+# ggsave("Boxplot all Attributes.png", device="png", width = 16, height = 3)
 #Attribute aufteilen in zwei Plots, übersichtlicher. But How?
 #Prefs muss raus, da andere Skalierung als die Evals!
 #removed 38 rows
@@ -360,53 +370,74 @@ length(unique(indivData$CurrentCity)) #76
 
 #Average Budget
 summary(indivData$Avg_Budget) #2.039 mean
+str(indivData)
 
 #Travel destination: Where have you been?
-Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin 
-230/258 #89.15%
-Paris_count <- count(subset(indivData, indivData$Paris=="1"))       #166
-166/258 #64.34%
-London_count <- count(subset(indivData, indivData$London=="1"))      #170
-170/258 #65.89%
-Barcelona_count <- count(subset(indivData, indivData$Barcelona=="1"))   #145
-Madrid_count <- count(subset(indivData, indivData$Madrid=="1"))      #57
-Rome_count <- count(subset(indivData, indivData$Rome=="1"))        #118
-Stockholm_count <- count(subset(indivData, indivData$Stockholm=="1"))   #67
-Amsterdam_count <- count(subset(indivData, indivData$Amsterdam=="1"))   #143
-Prague_count <- count(subset(indivData, indivData$Prague=="1"))      #154
-154/258 #59.69%
-Budapest_count <- count(subset(indivData, indivData$Budapest=="1"))    #93
-Lisbon_count <- count(subset(indivData, indivData$Lisbon=="1"))      #46
-Brussels_count <- count(subset(indivData, indivData$Brussels=="1"))    #82
-Vienna_count <- count(subset(indivData, indivData$Vienna=="1"))      #135
-StPetersburg_count <- count(subset(indivData, indivData$StPetersburg=="1"))#55
-Krakow_count <- count(subset(indivData, indivData$Krakow=="1"))      #45
-Riga_count <- count(subset(indivData, indivData$Riga=="1"))        #37
-Istanbul_count <- count(subset(indivData, indivData$Istanbul=="1"))    #59
-Geneva_count <- count(subset(indivData, indivData$Geneva=="1"))      #35
-Athens_count <- count(subset(indivData, indivData$Athens=="1"))      #48
-Dublin_count <- count(subset(indivData, indivData$Dublin=="1"))      #43
+sum(indivData$Berlin) # sum over column
+colnames(indivData[,4:23]) #only city names
+df = data.frame()#new dataframe
+for (i in colnames(indivData[,4:23])){
+  #print (i)# name
+  #print(sum(indivData[[i]]))# sum
+  city = i
+  sum = sum(indivData[[i]])
+  df = rbind(df, data.frame(city,sum))
+}
+df # works!
+#Barplot df
+ggplot(df,aes(x=city, y=sum)) + 
+  geom_bar(stat = "identity") +
+  labs(x = "cities as travel destination", y = "Frequency of visits") +
+  grid(TRUE)+
+  theme_classic(base_size = 10)+# change size of text
+  theme(axis.text.x=element_text(angle=45,hjust=1))
 
-names(indivData)
-
-### HILFE: die 20 Städte in einem neuen Dataframe darstellen -> Plot, in dem zu sehen ist, welche Stadt ###
-### am häufigsten besucht wurde:
-list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_count,Barcelona_count,
-                                               Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
-                                               Prague_count,Budapest_count, Lisbon_count,Brussels_count,
-                                               Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
-                                               Istanbul_count,Geneva_count, Athens_count,Dublin_count))
-
-
-#d <- data.frame(id=c("id1","id2","id3","id4","id15","id6","id7","id8","id9","id10","id11","id12","id13",
-#                     "id14","id15","id16","id17","id18", "id19", "id20"),
-#          x=c(Berlin_count,Paris_count,London_count,Barcelona_count,
-#              Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
-#              Prague_count,Budapest_count, Lisbon_count,Brussels_count,
-#              Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
-#              Istanbul_count,Geneva_count, Athens_count,Dublin_count),
-#          y=indivData[1,4:23])
-#funktioniert noch nicht..
+# #Travel destination: Where have you been?
+# Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin 
+# 230/258 #89.15%
+# Paris_count <- count(subset(indivData, indivData$Paris=="1"))       #166
+# 166/258 #64.34%
+# London_count <- count(subset(indivData, indivData$London=="1"))      #170
+# 170/258 #65.89%
+# Barcelona_count <- count(subset(indivData, indivData$Barcelona=="1"))   #145
+# Madrid_count <- count(subset(indivData, indivData$Madrid=="1"))      #57
+# Rome_count <- count(subset(indivData, indivData$Rome=="1"))        #118
+# Stockholm_count <- count(subset(indivData, indivData$Stockholm=="1"))   #67
+# Amsterdam_count <- count(subset(indivData, indivData$Amsterdam=="1"))   #143
+# Prague_count <- count(subset(indivData, indivData$Prague=="1"))      #154
+# 154/258 #59.69%
+# Budapest_count <- count(subset(indivData, indivData$Budapest=="1"))    #93
+# Lisbon_count <- count(subset(indivData, indivData$Lisbon=="1"))      #46
+# Brussels_count <- count(subset(indivData, indivData$Brussels=="1"))    #82
+# Vienna_count <- count(subset(indivData, indivData$Vienna=="1"))      #135
+# StPetersburg_count <- count(subset(indivData, indivData$StPetersburg=="1"))#55
+# Krakow_count <- count(subset(indivData, indivData$Krakow=="1"))      #45
+# Riga_count <- count(subset(indivData, indivData$Riga=="1"))        #37
+# Istanbul_count <- count(subset(indivData, indivData$Istanbul=="1"))    #59
+# Geneva_count <- count(subset(indivData, indivData$Geneva=="1"))      #35
+# Athens_count <- count(subset(indivData, indivData$Athens=="1"))      #48
+# Dublin_count <- count(subset(indivData, indivData$Dublin=="1"))      #43
+# 
+# names(indivData)
+# 
+# ### HILFE: die 20 Städte in einem neuen Dataframe darstellen -> Plot, in dem zu sehen ist, welche Stadt ###
+# ### am häufigsten besucht wurde:
+# list_Cities <- list(v1=indivData[1,4:23], v2=c(Berlin_count, Paris_count,London_count,Barcelona_count,
+#                                                Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
+#                                                Prague_count,Budapest_count, Lisbon_count,Brussels_count,
+#                                                Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
+#                                                Istanbul_count,Geneva_count, Athens_count,Dublin_count))
+# 
+# 
+# #d <- data.frame(id=c("id1","id2","id3","id4","id15","id6","id7","id8","id9","id10","id11","id12","id13",
+# #                     "id14","id15","id16","id17","id18", "id19", "id20"),
+# #          x=c(Berlin_count,Paris_count,London_count,Barcelona_count,
+# #              Madrid_count,Rome_count,Stockholm_count,Amsterdam_count,
+# #              Prague_count,Budapest_count, Lisbon_count,Brussels_count,
+# #              Vienna_count,StPetersburg_count, Krakow_count,Riga_count,
+# #              Istanbul_count,Geneva_count, Athens_count,Dublin_count),
+# #          y=indivData[1,4:23])
+# #funktioniert noch nicht..
 
 
 
