@@ -232,9 +232,6 @@ mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
 
 
-
-
-#548 hier weitermachen
 # Plot
 ggplot(data = subset(mds.selected, type != "vector"), 
        aes(x = dim1, y = dim2, col = type)) +
@@ -248,14 +245,110 @@ ggplot(data = subset(mds.selected, type != "vector"),
                    point.padding = 0.5,
                    show.legend = FALSE) +
   # Add circular contours
-  geom_mark_circle(data = subset(mds.selected, type == "ideal" & City == "exciting"), 
-                   aes(fill = station), expand = 0.1, show.legend = FALSE) +
-  geom_mark_circle(data = subset(mds.selected, type == "ideal" & station == "exciting"),
-                   aes(fill = station), expand = 0.2, show.legend = FALSE) +
-  geom_mark_circle(data = subset(mds.selected, type == "ideal" & station == "exciting"),
-                   aes(fill = station), expand = 0.4, show.legend = FALSE) +
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & City == "friendly"), 
+                   aes(fill = City), expand = 0.1, show.legend = FALSE) +
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & City == "friendly"),
+                   aes(fill = City), expand = 0.2, show.legend = FALSE) +
+  geom_mark_circle(data = subset(mds.selected, type == "ideal" & City == "friendly"),
+                   aes(fill = City), expand = 0.4, show.legend = FALSE) +
   scale_color_manual(values = c("darkblue", "black")) +
   scale_fill_manual(values = c("white", "white")) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw()
 
+# Joint Mapping of Perceptions and Preferences ================================
+# Let's assume we have preference ratings of each TV channel by a respondent
+# sort original data frame
+data.eval <- data.eval[order(data.eval$id_unique, data.eval$City), ]
+head(data.eval, 8)
+head(data.eval[data.eval$id_unique == 1, ], 8)
+
+# add preferences for id_new = 1
+# high preference for ARD and ZDF
+data.eval$Pref <- ifelse(data.eval$id_unique == 1, c(5, 4, 2, 1, 1, 3, 4, 5), NA)
+data.eval[data.eval$id_unique == 1, ]
+
+
+# Property fitting (what model to use: ideal or vector?)
+# As preference ratings should be interpreted as "the more, the better",
+# we will opt for the vector model
+profit.1 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$id_unique == 1, ])
+summary(profit.1)
+
+param <- data.frame(t(coef(profit.1)))
+param$City <- "id1"
+
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref"
+
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+
+# Plot
+ggplot(data = subset(mds.selected, type == "point"), 
+       aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors for attributes
+  geom_segment(data = subset(mds.selected, type == "vector_pref"),
+               aes(x = -dim1, y = -dim2, xend = dim1, yend = dim2),
+               col = "darkblue",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.selected, type == "vector_pref"),
+            aes(label = City), 
+            col = "darkblue",
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+
+
+# Note that the better the model fits (higher Rsquare), the larger  
+# the scale of the parameter and, hence, the end of the arrow will be.
+# For more visually pleasing figure, we can simply rescale the
+# estimates in the vector-model
+# Here, let's try rescaling down
+original <- mds.selected[mds.selected$City == "id1", 
+                         c("dim1", "dim2")]
+
+rescaled <- original * 0.5
+
+
+# overwrite the values with the rescaled values
+mds.selected[mds.selected$City == "id1", 
+             c("dim1", "dim2")] <- rescaled
+
+
+# Plot again
+ggplot(data = subset(mds.selected, type == "point"), 
+       aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add vectors for attributes
+  geom_segment(data = subset(mds.selected, type == "vector_pref"),
+               aes(x = -dim1, y = -dim2, xend = dim1, yend = dim2),
+               col = "darkblue",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.selected, type == "vector_pref"),
+            aes(label = City), 
+            col = "darkblue",
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
