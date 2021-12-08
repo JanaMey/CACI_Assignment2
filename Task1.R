@@ -230,8 +230,8 @@ sort(indivData$Age) #1 11-Jähriger und 1 88-Jähriger
 subset(indivData, indivData$Age=="11") #ID 140
 subset(indivData, indivData$Age=="88") #ID 211
 #plots
-plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
-boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
+#plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
+#boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
 ggplot(data = indivData, aes(x = Age, fill = Gender)) + #fill: variable for differencing ('target)
   geom_histogram(bins = 43, col = "white") + # position dodge: next to each other
   labs(x = "Age", y = "Frequency", fill = "Gender") +
@@ -282,55 +282,55 @@ dataMean
 
 
 
-#Corrplot for Correlations
-corrplot(cor(data.eval[, -c(1,2,3,4)]),
-         method = "number", 
-         type = "upper",
-         number.cex = 0.8,
-         tl.cex = 0.9)  
-
-#Barplot pro Sample. ähnliche Verteilung
-ggplot(data = data.longer, aes(y = attribute, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + # to plot the mean
-  geom_vline(xintercept = 3, linetype = "dashed") +
-  facet_wrap(Sample~.) +
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
-#removed 515 rows ?!
-
-
-ggplot(data = data.longer, aes(y = City, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + 
-  geom_vline(data = dataMean, aes(xintercept = x),
-             linetype = "dashed") +
-  facet_wrap(attribute~.) +   
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
-#Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
-
-ggplot(data = data.longer, aes(y = City, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") + 
-  geom_vline(data = dataMean, aes(xintercept = x),
-             linetype = "dashed") +
-  facet_wrap(attribute~.) +   
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
+# #Corrplot for Correlations
+# corrplot(cor(data.eval[, -c(1,2,3,4)]),
+#          method = "number", 
+#          type = "upper",
+#          number.cex = 0.8,
+#          tl.cex = 0.9)  
+# 
+# #Barplot pro Sample. ähnliche Verteilung
+# ggplot(data = data.longer, aes(y = attribute, x = value)) +
+#   geom_bar(stat = "summary", fun = "mean") + # to plot the mean
+#   geom_vline(xintercept = 3, linetype = "dashed") +
+#   facet_wrap(Sample~.) +
+#   scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+#   labs(x = "", y = "") +
+#   theme_bw()
+# #removed 515 rows ?!
+# 
+# 
+# ggplot(data = data.longer, aes(y = City, x = value)) +
+#   geom_bar(stat = "summary", fun = "mean") + 
+#   geom_vline(data = dataMean, aes(xintercept = x),
+#              linetype = "dashed") +
+#   facet_wrap(attribute~.) +   
+#   scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+#   labs(x = "", y = "") +
+#   theme_bw()
+# #Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
+# 
+# ggplot(data = data.longer, aes(y = City, x = value)) +
+#   geom_bar(stat = "summary", fun = "mean") + 
+#   geom_vline(data = dataMean, aes(xintercept = x),
+#              linetype = "dashed") +
+#   facet_wrap(attribute~.) +   
+#   scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+#   labs(x = "", y = "") +
+#   theme_bw()
 
 #save Plots and Tables for respondent characteristics
 #Age
 summary(indivData$Age) #average 25 years old, 18 Minimum, 63 Maximum
-png("Age.png", width=300, height=400) #Variante 1
-plot(indivData$Age)
-dev.off()
-png("Age2.png", width=300, height=400) #Varante 2
-hist(indivData$Age,
-     main="",
-     xlab="Age",
-     ylab="Frequency")
-dev.off()
+#png("Age.png", width=300, height=400) #Variante 1
+#plot(indivData$Age)
+#dev.off()
+#png("Age2.png", width=300, height=400) #Varante 2
+# hist(indivData$Age,
+#      main="",
+#      xlab="Age",
+#      ylab="Frequency")
+# dev.off()
 
 #Gender
 indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
@@ -374,16 +374,14 @@ str(indivData)
 
 #Travel destination: Where have you been?
 sum(indivData$Berlin) # sum over column
-colnames(indivData[,4:23]) #only city names
-df = data.frame()#new dataframe
+colnames(indivData[,4:23]) # only city names
+df = data.frame()# new dataframe
 for (i in colnames(indivData[,4:23])){
-  #print (i)# name
-  #print(sum(indivData[[i]]))# sum
   city = i
   sum = sum(indivData[[i]])
   df = rbind(df, data.frame(city,sum))
 }
-df # works!
+df 
 #Barplot df
 ggplot(df,aes(x=city, y=sum)) + 
   geom_bar(stat = "identity") +
@@ -464,6 +462,7 @@ count(subset(indivData, indivData$With_Whom_5=="1")) #69 by yourslelf
 
 ###################################################################
 # Am Ende von Task 1 Datensätze für die anderen Aufgaben speichern.
-data.eval[, -c(1, 2, 3, 4)] <- log(data.eval[, -c(1, 2, 3, 4)])
+data.eval[, -c(1, 2, 3, 4)] <- scale(data.eval[, -c(1, 2, 3, 4)])
 write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
 write.csv(indivData, file = "indivData.csv", row.names = FALSE)
+
