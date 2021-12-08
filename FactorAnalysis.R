@@ -1,3 +1,4 @@
+# AUFGABE 3 #
 # Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot)
 
@@ -16,26 +17,33 @@ indivData <-read.csv(urlfile)
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
 data.eval <-read.csv(urlfile)
 
-head(indivData)
-dim(indivData) #258 43 stimmt das noch oder neue Werte durch Anpassung in A1?
+head(data.eval)
+dim(data.eval) #1401 25 stimmt das noch oder neue Werte durch Anpassung in A1?
 
 # Aufgabe 3 - Factor Analysis
 # ACHTUNG:  ES MÜSSEN NOCH DIE RICHTIGEN DATENSÄTZE VON A1 ERGÄNZT WERDEN
 
-# Investigate the Correlation Matrix - wieso Fehlermeldung?
-corrplot(cor(indivData[, -10]),
+# Rescaling data
+data.sc <- data.eval
+data.sc[, -10] <- scale(data.sc[, -10])
+head(data.sc)
+
+summary(data.sc)
+
+# Investigate the Correlation Matrix - wieso Fehlermeldung mit 'x' muss numerisch sein?
+corrplot(cor(data.sc[, -10]),
          method = "number", 
          type = "upper",
          order = "hclust")
 
 # Alternative with Circles instead of numbers
-corrplot(cor(indivData[, -10]), type = "upper", order = "hclust")
+corrplot(cor(data.sc[, -10]), type = "upper", order = "hclust")
 
 # Test KMO Criterion
-KMO(cor(indivData[, -10]))
+KMO(cor(data.sc[, -10]))
 
 # Screeplot: Eigenvalues vs. number of factors
-plot(eigen(cor(indivData[, -10]))$values, 
+plot(eigen(cor(data.sc[, -10]))$values, 
      type = "o",                 
      xlab = "Number of factors",   
      ylab = "Eigenvalues",
@@ -43,7 +51,7 @@ plot(eigen(cor(indivData[, -10]))$values,
 abline(h = 1, col = "grey")
 
 # Example Maximum Likelihood method for factor extraction
-ml.unrotated = fa(indivData[, -10], 
+ml.unrotated = fa(data.sc[, -10], 
                   fm = "ml",            
                   nfactors = 2,         # here testing with different factors
                   rotate = "none",      # rotation in next step
@@ -52,7 +60,7 @@ ml.unrotated = fa(indivData[, -10],
 ml.unrotated
 
 #orthagonal rotation - rotate values from above - insert values from Assignment 2
-ml.rotated = fa(indivData[, -10], 
+ml.rotated = fa(data.sc[, -10], 
                 fm = "ml",            
                 nfactors = 2,         
                 rotate = "varimax",   
