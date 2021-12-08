@@ -1,5 +1,5 @@
 # Install and load the required libraries ----------------------------------------
-pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot)
+pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot,smacof,ggrepel,ggforce,MASS, reshape2)
 
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
 indivData <-read.csv(urlfile)
@@ -8,7 +8,7 @@ data.eval <-read.csv(urlfile)
 
 str(indivData)
 head(indivData)
-dim(indivData) # 266 462
+dim(indivData) # 258 43
 
 ########################################################################
 ########################################################################
@@ -164,8 +164,12 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(friendly, historical) # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
+profit.vector <- lm(cbind(historical,affordable,safe, trendy, fun, green) # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
                     ~ -1 + dim1 + dim2, data = data.eval)
+
+colnames(data.eval[5:24])#all attributes
+#profit.vector <- lm(cbind() # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
+#                    ~ -1 + dim1 + dim2, data = data.eval)
 
 summary(profit.vector) 
 param <- data.frame(t(coef(profit.vector)))
@@ -189,8 +193,8 @@ ggplot(data = subset(mds.selected, type == "point"),
   geom_point() +
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
-                   size          = 2,
-                   box.padding   = 0.8,
+                   size          = 3,
+                   box.padding   = 0.4,
                    point.padding = 0.5) +
   # Add vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector"),
@@ -202,7 +206,7 @@ ggplot(data = subset(mds.selected, type == "point"),
             aes(label = City), 
             col = "darkblue",
             hjust = -0.5, vjust = 1) +
-  labs(x = "Dimension 1", y = "Dimension 2") +
+  labs(x = "Comfortable", y = "Exciting") +
   theme_bw()
 
 
