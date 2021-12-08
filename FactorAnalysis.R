@@ -24,14 +24,14 @@ dim(data.eval) #1401 25 stimmt das noch oder neue Werte durch Anpassung in A1?
 # Aufgabe 3 - Factor Analysis
 # ACHTUNG:  ES MÜSSEN NOCH DIE RICHTIGEN DATENSÄTZE VON A1 ERGÄNZT WERDEN
 
-# Rescaling data
+# Rescaling data - Standardize data with mean = 0 and standard deviation = 1
 data.sc <- data.eval
 data.sc[, -10] <- scale(data.sc[, -10])
 head(data.sc)
 
 summary(data.sc)
 
-# Investigate the Correlation Matrix - wieso Fehlermeldung mit 'x' muss numerisch sein?
+# Investigate the Correlation Matrix - wieso Fehlermeldung mit 'x' muss numerisch sein? HIER FUNKTIONIERT ES BEI MIR NICHT, BITTE 1x testen
 corrplot(cor(data.sc[, -10]),
          method = "number", 
          type = "upper",
@@ -40,7 +40,7 @@ corrplot(cor(data.sc[, -10]),
 # Alternative with Circles instead of numbers
 corrplot(cor(data.sc[, -10]), type = "upper", order = "hclust")
 
-# Test KMO Criterion
+# Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
 KMO(cor(data.sc[, -10]))
 
 # Screeplot: Eigenvalues vs. number of factors
@@ -60,7 +60,7 @@ ml.unrotated = fa(data.sc[, -10],
 
 ml.unrotated
 
-#orthagonal rotation - rotate values from above - insert values from Assignment 2
+#orthagonal rotation - rotate values from above - insert values from Assignment 2 (target: correlation more extreme)
 ml.rotated = fa(data.sc[, -10], 
                 fm = "ml",            
                 nfactors = 2,         
