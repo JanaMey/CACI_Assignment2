@@ -9,6 +9,8 @@ data.eval <-read.csv(urlfile)
 summary(data.eval) #mean=0
 #head(data.eval[,-25]) #without preferences
 head(data.eval)
+dim(data.eval) # 1401 25
+
 str(indivData)
 head(indivData)
 dim(indivData) # 258 43
