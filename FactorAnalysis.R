@@ -11,6 +11,7 @@ urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/dataEv
 data.eval <-read.csv(urlfile)
 
 head(data.eval)
+names(data.eval)
 summary(data.eval)
 dim(data.eval) #1401 25
 
@@ -42,7 +43,7 @@ corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
          number.cex = 0.65)
 
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
-KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.867 suitable
+KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.874 suitable
 
 # Screeplot: Eigenvalues vs. number of factors
 plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values, 
@@ -72,9 +73,14 @@ ml.rotated = fa(data.sc[, -c(1,2,3,4,25)],
 ml.rotated
 
 # heatmaps for loading visualization
+#Checken ob rotated bessere Lösung ist!!!
 png("Heatmap for Loading visualization.png", width=300, height = 300)
 heatmap.2(ml.rotated$loadings,
           col = brewer.pal(9, "Greens"), 
           trace="none", key = FALSE , dend = "none",
           Colv = FALSE , cexCol = 1.2)
 dev.off()
+
+# Visual representation of factor loadings
+fa.diagram(ml.rotated, main = "Rotated Factor Loadings")
+fa.diagram(ml.unrotated, main = "Unrotated Factor Loading")
