@@ -7,7 +7,7 @@ urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/dataEv
 data.eval <-read.csv(urlfile)
 
 summary(data.eval) #mean=0
-head(data.eval[,-25]) #without preferences
+#head(data.eval[,-25]) #without preferences
 head(data.eval)
 str(indivData)
 head(indivData)
@@ -167,7 +167,7 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(affordable,friendly, international,historical, fun, noisy, safe)
+profit.vector <- lm(cbind(affordable,friendly, international,romantic,historical, fun, noisy, safe, trendy, green)
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 colnames(data.eval[5:24])#all attributes
@@ -198,37 +198,42 @@ ggplot(data = subset(mds.selected, type == "point"),
   ylim(-1, 1) +
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
-                   size          = 5) +
+                   size = 7,
+                   #hjust = 0,         # horizontal adjustment of the position
+                   vjust = 1) +        # vertical adjustment of the positio
   labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
-  theme_bw()
+  theme_bw(base_size = 21)
   ggsave(file="MDS.png", width=8, height=8, dpi=600)
-  
-# cities and vectors
-  ggplot(data = subset(mds.selected, type == "point"), 
-         aes(x = dim1, y = dim2)) +
-    geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
-    geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
-    geom_point() +
-    ylim(-1, 1) +
-    # Add text labels using ggrepel package
-    geom_label_repel(aes(label = City),
-                     size          = 5)+
-    #box.padding   = 0.8,
-    #point.padding = 0.5) +
+    
+# Plot
+ggplot(data = subset(mds.selected, type == "point"), 
+      aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size  = 7,
+                   vjust = 1)+
+                  #box.padding   = 0.8,
+                  # point.padding = 0.5) +
   # Add vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector"),
-               aes(x = 0, y = 0, xend = dim1*3, yend = dim2*3), # pfeile manipuliert
-               col = "blue",
-               arrow = arrow(length = unit(0.5, "cm"))) +
+                aes(x = 0, y = 0, xend = dim1, yend = dim2),
+                col = "royalblue4",
+                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector"),
-            aes(label = City),
-            col = "blue",
-            hjust = 0.5, vjust = 0.5) +
-  labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
-    theme_bw()
-  ggsave(file="MDS_vectors.png", width=8, height=8, dpi=600)
-  
+            aes(label = City), 
+            col = "royalblue4",
+            size = 5,
+            hjust = 1.2, vjust = 1.4) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw(base_size = 21)
+  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=600)  
+    
+    
+
   
 # Ideal-point Model -----------------------------------------------------------
 # Example for attributes informative and exciting
