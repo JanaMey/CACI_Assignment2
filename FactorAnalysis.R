@@ -1,14 +1,6 @@
 
 # AUFGABE 3 #
 # Install and load the required libraries ----------------------------------------
-pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot)
-
-urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
-indivData <-read.csv(urlfile)
-urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
-data.eval <-read.csv(urlfile)
-
-# Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, corrplot, psych,
                gplots, RColorBrewer, EFAtools, 
                lavaan, semPlot, semTools)
@@ -19,15 +11,15 @@ urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.e
 data.eval <-read.csv(urlfile)
 
 head(data.eval)
-dim(data.eval) #1401 25 stimmt das noch oder neue Werte durch Anpassung in A1?
+summary(data.eval)
+dim(data.eval) #1401 25
 
 # Aufgabe 3 - Factor Analysis
-# ACHTUNG:  ES MÜSSEN NOCH DIE RICHTIGEN DATENSÄTZE VON A1 ERGÄNZT WERDEN
 
 # Rescaling data - Standardize data with mean = 0 and standard deviation = 1
-data.sc <- data.eval
-data.sc[, -10] <- scale(data.sc[, -10])
-head(data.sc)
+#data.sc <- data.eval
+#data.sc[, -10] <- scale(data.sc[, -10])
+#head(data.sc)
 
 summary(data.sc)
 
