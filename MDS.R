@@ -6,6 +6,8 @@ indivData <-read.csv(urlfile)
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
 data.eval <-read.csv(urlfile)
 
+head(data.eval[,-25]) #without preferences
+head(data.eval)
 str(indivData)
 head(indivData)
 dim(indivData) # 258 43
@@ -20,7 +22,7 @@ dim(indivData) # 258 43
 # Derive Proximity Measure =====================================================
 # Compute Euclidean distance measure (aggregate-level)
 # Compute dissimilarity on mean attribute evaluations --------------------------
-cities.mean <- aggregate(data.eval[, -c(1, 2, 3, 4)], 
+cities.mean <- aggregate(data.eval[, -c(1, 2, 3, 4, 25)], # 25: without preferences
                          by = list(city = data.eval$City), 
                          FUN = mean)
 rownames(cities.mean) <- cities.mean$city
@@ -36,16 +38,16 @@ dist.onmean <- as.matrix(dist.onmean)
 # Compare the resulting dissimilarity matrices --------------------------------
 round(dist.onmean, 2)
 
-# Fix the code
-corrplot(dist.onmean,
-         is.corr = FALSE,
-         method = "color",
-         type = "upper",
-         number.cex = 1,
-         tl.cex = 1,
-         tl.col = "black",
-         addCoef.col ='black',
-         col= colorRampPalette(c("grey80", "grey0"))(5)) 
+# # Fix the code
+# corrplot(dist.onmean,
+#          is.corr = FALSE,
+#          method = "color",
+#          type = "upper",
+#          number.cex = 1,
+#          tl.cex = 1,
+#          tl.col = "black",
+#          addCoef.col ='black',
+#          col= colorRampPalette(c("grey80", "grey0"))(5)) 
 
 # corrplot shows all number and the background fades.
 corrplot(cor(dist.onmean),
@@ -164,7 +166,7 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(historical,affordable,safe, trendy, fun, green) # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
+profit.vector <- lm(cbind(affordable,friendly, international,historical, fun, noisy, safe)
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 colnames(data.eval[5:24])#all attributes
@@ -173,7 +175,7 @@ colnames(data.eval[5:24])#all attributes
 
 summary(profit.vector) 
 param <- data.frame(t(coef(profit.vector)))
-param$City <- rownames(param)
+param$City <- rownames(param) #attribute names
 
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
@@ -186,30 +188,47 @@ rownames(mds.selected) <- NULL # overwrite the rownames
 
 
 # Plot
-ggplot(data = subset(mds.selected, type == "point"), 
+# only cities
+ggplot(data = subset(mds.selected, type == "point"),
        aes(x = dim1, y = dim2)) +
   geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
   geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
   geom_point() +
+  ylim(-1, 1) +
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
-                   size          = 3,
-                   box.padding   = 0.4,
-                   point.padding = 0.5) +
+                   size          = 5) +
+  labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
+  theme_bw()
+  ggsave(file="MDS.png", width=8, height=8, dpi=600)
+  
+# cities and vectors
+  ggplot(data = subset(mds.selected, type == "point"), 
+         aes(x = dim1, y = dim2)) +
+    geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+    geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+    geom_point() +
+    ylim(-1, 1) +
+    # Add text labels using ggrepel package
+    geom_label_repel(aes(label = City),
+                     size          = 5)+
+    #box.padding   = 0.8,
+    #point.padding = 0.5) +
   # Add vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector"),
-               aes(x = 0, y = 0, xend = dim1, yend = dim2),
-               col = "darkblue",
+               aes(x = 0, y = 0, xend = dim1*3, yend = dim2*3), # pfeile manipuliert
+               col = "blue",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector"),
-            aes(label = City), 
-            col = "darkblue",
-            hjust = -0.5, vjust = 1) +
-  labs(x = "Comfortable", y = "Exciting") +
-  theme_bw()
-
-
+            aes(label = City),
+            col = "blue",
+            hjust = 0.5, vjust = 0.5) +
+  labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
+    theme_bw()
+  ggsave(file="MDS_vectors.png", width=8, height=8, dpi=600)
+  
+  
 # Ideal-point Model -----------------------------------------------------------
 # Example for attributes informative and exciting
 # Add the quadratic term
