@@ -54,12 +54,13 @@ round(dist.onmean, 2)
 corrplot(cor(dist.onmean),
          method = "number", # besser mit method = "color" aber da brauchen wir einen cutoff. Wie geht das?
          #insig = 'blank',
-         type = "lower",
+         type = "upper",
          tl.cex = 0.75,
          tl.col = "black",
          addCoef.col ='grey28',
          number.digits = 1,
          number.cex = 0.65)
+
 
 # Let's define a vector of different mds methods
 mds_method <- c("ratio", "interval", "ordinal")

@@ -142,8 +142,6 @@ length(unique(data.long$City)) # 20
 #write.csv(indivData, file = "indivData.csv", row.names = FALSE)
 
 
-
-
 #---------------------------------------------------------------------------------------------------------------
 #Exercise 1
 #Missing Values
@@ -232,12 +230,13 @@ subset(indivData, indivData$Age=="88") #ID 211
 #plots
 #plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
 #boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
-ggplot(data = indivData, aes(x = Age, fill = Gender)) + #fill: variable for differencing ('target)
-  geom_histogram(bins = 43, col = "white") + # position dodge: next to each other
-  labs(x = "Age", y = "Frequency", fill = "Gender") +
-  grid(TRUE)+
+ggplot(data = indivData, aes(x = Age)) + #fill: variable for differencing ('target)
+  geom_histogram(bins = 43, col = "white", fill ="turquoise4") + # position dodge: next to each other
+  labs(x = "Age", y = "Frequency") +
+ # grid(TRUE)+
   scale_x_continuous(breaks = seq(0, 90, by = 5)) +
   theme_classic(base_size = 10)# change size of text
+  ggsave(file="age_ditribution.png", width=8, height=3, dpi=600) 
 #Outlier eleminieren
 indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
 dim(indivData) #Jetzt nur noch 260
@@ -300,14 +299,14 @@ dataMean
 # #removed 515 rows ?!
 # 
 # 
-# ggplot(data = data.longer, aes(y = City, x = value)) +
-#   geom_bar(stat = "summary", fun = "mean") + 
-#   geom_vline(data = dataMean, aes(xintercept = x),
-#              linetype = "dashed") +
-#   facet_wrap(attribute~.) +   
-#   scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-#   labs(x = "", y = "") +
-#   theme_bw()
+ggplot(data = data.longer, aes(y = City, x = value)) +
+  geom_bar(stat = "summary", fun = "mean") +
+  geom_vline(data = dataMean, aes(xintercept = x),
+             linetype = "dashed") +
+  facet_wrap(attribute~.) +
+  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+  labs(x = "", y = "") +
+  theme_bw()
 # #Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
 # 
 # ggplot(data = data.longer, aes(y = City, x = value)) +
@@ -370,10 +369,9 @@ length(unique(indivData$CurrentCity)) #76
 
 #Average Budget
 summary(indivData$Avg_Budget) #2.039 mean
-str(indivData)
 
 #Travel destination: Where have you been?
-sum(indivData$Berlin) # sum over column
+#sum(indivData$Berlin) # sum over column
 colnames(indivData[,4:23]) # only city names
 df = data.frame()# new dataframe
 for (i in colnames(indivData[,4:23])){
@@ -381,14 +379,16 @@ for (i in colnames(indivData[,4:23])){
   sum = sum(indivData[[i]])
   df = rbind(df, data.frame(city,sum))
 }
-df 
+#df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort 
+df
+
 #Barplot df
-ggplot(df,aes(x=city, y=sum)) + 
-  geom_bar(stat = "identity") +
-  labs(x = "cities as travel destination", y = "Frequency of visits") +
-  grid(TRUE)+
-  theme_classic(base_size = 10)+# change size of text
-  theme(axis.text.x=element_text(angle=45,hjust=1))
+ggplot(df, aes(x=reorder(city,-sum), y=sum)) + 
+  geom_bar(stat = "identity", fill='turquoise4') +
+  labs(x = "", y = "Frequency of Visits") +
+  theme_classic(base_size = 11) + # change size of text
+  theme(axis.text.x=element_text(angle = 45, hjust = 1))
+  ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
 
 # #Travel destination: Where have you been?
 # Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin 
