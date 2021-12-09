@@ -1,20 +1,20 @@
-
 # AUFGABE 3 #
 # Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, corrplot, psych,
                gplots, RColorBrewer, EFAtools, 
                lavaan, semPlot, semTools)
 
+# load data from git--------------------------------------------------------------
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
 indivData <-read.csv(urlfile)
-urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
+urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/dataEvalScale.csv'
 data.eval <-read.csv(urlfile)
 
 head(data.eval)
 summary(data.eval)
 dim(data.eval) #1401 25
 
-# Aufgabe 3 - Factor Analysis
+# Aufgabe 3 - Factor Analysis-----------------------------------------------------
 
 # Rescaling data - Standardize data with mean = 0 and standard deviation = 1
 #data.sc <- data.eval
