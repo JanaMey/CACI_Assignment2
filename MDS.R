@@ -3,9 +3,10 @@ pacman::p_load(reshape2, ggplot2, dplyr, stringr, corrplot,smacof,ggrepel,ggforc
 
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
 indivData <-read.csv(urlfile)
-urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/data.eval.csv'
+urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/dataEvalScale.csv'
 data.eval <-read.csv(urlfile)
 
+summary(data.eval) #mean=0
 head(data.eval[,-25]) #without preferences
 head(data.eval)
 str(indivData)
