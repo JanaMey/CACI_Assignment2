@@ -16,53 +16,65 @@ dim(data.eval) #1401 25
 
 # Aufgabe 3 - Factor Analysis-----------------------------------------------------
 
-# Rescaling data - Standardize data with mean = 0 and standard deviation = 1
-#data.sc <- data.eval
-#data.sc[, -10] <- scale(data.sc[, -10])
-#head(data.sc)
+#copy data
+data.sc <- data.eval
 
-summary(data.sc)
+#Corrplot with Circles
+corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
+         #method = "number",
+         #insig = 'blank',
+         type = "lower",
+         tl.cex = 0.75,
+         tl.col = "black")
+#addCoef.col ='grey28')
+#number.digits = 1,
+#number.cex = 0.65)
 
-# Investigate the Correlation Matrix - wieso Fehlermeldung mit 'x' muss numerisch sein? HIER FUNKTIONIERT ES BEI MIR NICHT, BITTE 1x testen
-corrplot(cor(data.sc[, -10]),
-         method = "number", 
-         type = "upper",
-         order = "hclust")
-
-# Alternative with Circles instead of numbers
-corrplot(cor(data.sc[, -10]), type = "upper", order = "hclust")
+#Corrplot without Circles
+corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
+         method = "number",
+         #insig = 'blank',
+         type = "lower",
+         tl.cex = 0.75,
+         tl.col = "black",
+         addCoef.col ='grey28',
+         number.digits = 1,
+         number.cex = 0.65)
 
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
-KMO(cor(data.sc[, -10]))
+KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.867 suitable
 
 # Screeplot: Eigenvalues vs. number of factors
-plot(eigen(cor(data.sc[, -10]))$values, 
+plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values, 
      type = "o",                 
      xlab = "Number of factors",   
      ylab = "Eigenvalues",
      pch = 16)                        
 abline(h = 1, col = "grey")
+#Use 4 factors?
 
 # Example Maximum Likelihood method for factor extraction
-ml.unrotated = fa(data.sc[, -10], 
+ml.unrotated = fa(data.sc[, -c(1,2,3,4,25)], 
                   fm = "ml",            
-                  nfactors = 2,         # here testing with different factors
+                  nfactors = 4,         # here testing with different factors
                   rotate = "none",      # rotation in next step
                   scores ='regression') 
 
 ml.unrotated
 
 #orthagonal rotation - rotate values from above - insert values from Assignment 2 (target: correlation more extreme)
-ml.rotated = fa(data.sc[, -10], 
+ml.rotated = fa(data.sc[, -c(1,2,3,4,25)], 
                 fm = "ml",            
-                nfactors = 2,         
+                nfactors = 4,         
                 rotate = "varimax",   
                 scores ='regression') 
 
 ml.rotated
 
 # heatmaps for loading visualization
+png("Heatmap for Loading visualization.png", width=300, height = 300)
 heatmap.2(ml.rotated$loadings,
           col = brewer.pal(9, "Greens"), 
           trace="none", key = FALSE , dend = "none",
           Colv = FALSE , cexCol = 1.2)
+dev.off()
