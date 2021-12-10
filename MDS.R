@@ -237,6 +237,20 @@ ggplot(data = subset(mds.selected, type == "point"),
   #getwd()
     
 ### Vector Model mit Segmenten Bachelor, Master, Other ###
+# Column für Segment Occupation hinzufügen
+# subset of bachelor students
+bachelor <- subset(indivData, indivData$Occupation=="Bachelor student")
+length(unique(bachelor$id_unique)) # Anzahl Ids in bachelor 64
+idListBachelor <- unique(bachelor$id_unique) # Liste mit den ids aus long.data
+
+# subset of master students
+master <- subset(indivData, indivData$Occupation=="Master student")
+length(unique(master$id_unique)) # Anzahl Ids in bachelor 128
+idListMaster <- unique(master$id_unique) # Liste mit den ids aus long.data
+
+data.eval$Occupation <- ifelse(data.eval$id_unique %in% idListBachelor, "Bachelor", 
+                               ifelse(data.eval$id_unique %in% idListMaster, "Master", "Other"))
+
 # Bachelor # 
 profit.1 <- lm(Pref ~ -1 + dim1 + dim2, 
                data = data.eval[data.eval$Occupation == "Bachelor",])
@@ -286,7 +300,7 @@ ggplot(data = subset(mds.selected, type == "point"),
                    point.padding = 0.5) +
   # Add Vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector_pref"),
-               aes(x = -dim1, y = -dim2, xend = dim1, yend = dim2),
+               aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
                col = "turquoise4",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
@@ -298,6 +312,85 @@ ggplot(data = subset(mds.selected, type == "point"),
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw()
 #ggsave(file="MDS_vectoren_segmente.png", width=8, height=8, dpi=800)   # width=8 besser
+
+
+### Vector Model mit Segmenten Single vs Relationshipt vs Other ###
+# Column für Segment Travel with hinzufügen
+# subset of Single
+single <- subset(indivData, indivData$PartnershipStatus== "single") 
+length(unique(single$id_unique)) # Anzahl Ids in Single 105
+idListSingle <- unique(single$id_unique) # Liste mit den ids aus long.data
+
+# subset of in a relationship.
+couple <- subset(indivData, indivData$PartnershipStatus== "in a relationship.")
+length(unique(couple$id_unique)) # Anzahl Ids in bachelor 134
+idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
+
+data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Single", 
+                               ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Other"))
+
+# Single # 
+profit.1 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$PartnershipStatus == "Single",])
+param <- data.frame(t(coef(profit.1)))
+param$City <- "Single"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref_relationship"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Couple # 
+profit.2 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$PartnershipStatus == "In Relationship",])
+param <- data.frame(t(coef(profit.2)))
+param$City <- "In Relationship"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref_relationship"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Other # 
+profit.3 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$PartnershipStatus == "Other",])
+param <- data.frame(t(coef(profit.3)))
+param$City <- "Other"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref_relationship"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Plot
+ggplot(data = subset(mds.selected, type == "point"), 
+       aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors for attributes
+  geom_segment(data = subset(mds.selected, type == "vector_pref_relationship"),
+               aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
+               col = "turquoise4",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.selected, type == "vector_pref_relationship"),
+            aes(label = City), 
+            col = "turquoise4",
+            size = 5,
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+#ggsave(file="MDS_vectoren_PartnershipStatus.png", width=8, height=8, dpi=800)   # width=8 besser
+
 
 
   
