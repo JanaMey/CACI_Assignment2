@@ -333,9 +333,9 @@ summary(indivData$Age) #average 25 years old, 18 Minimum, 63 Maximum
 
 #Gender
 indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
-png("Gender.png", width=300, height=450)
+#png("Gender.png", width=300, height=450)
 plot(indivData$Gender)
-dev.off()
+#dev.off()
 summary(indivData$Gender) #148 Female, 110 Male
 148/258
 
@@ -360,7 +360,7 @@ prop.table(table(indivData$Nationality))
 #Partnership
 indivData[,"PartnershipStatus"] <- as.factor(indivData[,"PartnershipStatus"])
 summary(indivData$PartnershipStatus) #134 relationship, 105 single,, 17 married,..
-
+prop.table(table(indivData$PartnershipStatus))
 #CurrentCity
 indivData[,"CurrentCity"] <- as.factor(indivData[,"CurrentCity"])
 summary(indivData$CurrentCity) #123 Berlin most 
