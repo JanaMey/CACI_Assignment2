@@ -370,8 +370,18 @@ length(unique(indivData$CurrentCity)) #76
 #Average Budget
 summary(indivData$Avg_Budget) #2.039 mean
 
+
+#city preferences and favourires???
+#preferences
+average_pref <- round(by(data.eval$Pref,data.eval$City, mean),1)
+average_pref<- as.list(average_pref)
+average_pref <- do.call(rbind,average_pref)
+average_pref <- as.data.frame(average_pref)
+#average_pref <- cbind(city = rownames(average_pref),average_pref)
+#rownames(average_pref) <- 1:nrow(average_pref)# new index
+average_pref
+
 #Travel destination: Where have you been?
-#sum(indivData$Berlin) # sum over column
 colnames(indivData[,4:23]) # only city names
 df = data.frame()# new dataframe
 for (i in colnames(indivData[,4:23])){
@@ -379,16 +389,41 @@ for (i in colnames(indivData[,4:23])){
   sum = sum(indivData[[i]])
   df = rbind(df, data.frame(city,sum))
 }
-#df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort 
-df
+df$city<-as.character(df$city)
+df <- df[order(df$city),] #order alphabetically
+df <- cbind(df, average_pref)
+df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort 
+#write.csv(df, "favourite_cities.csv")
 
 #Barplot df
 ggplot(df, aes(x=reorder(city,-sum), y=sum)) + 
   geom_bar(stat = "identity", fill='turquoise4') +
+  geom_text(aes(label=V1)) +
   labs(x = "", y = "Frequency of Visits") +
   theme_classic(base_size = 11) + # change size of text
   theme(axis.text.x=element_text(angle = 45, hjust = 1))
-  ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
+ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
+
+#--------------------------------------------------alter code für travel destination
+# #Travel destination: Where have you been?
+# #sum(indivData$Berlin) # sum over column
+# colnames(indivData[,4:23]) # only city names
+# df = data.frame()# new dataframe
+# for (i in colnames(indivData[,4:23])){
+#   city = i
+#   sum = sum(indivData[[i]])
+#   df = rbind(df, data.frame(city,sum))
+# }
+# #df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort 
+# df
+# 
+# #Barplot df
+# ggplot(df, aes(x=reorder(city,-sum), y=sum)) + 
+#   geom_bar(stat = "identity", fill='turquoise4') +
+#   labs(x = "", y = "Frequency of Visits") +
+#   theme_classic(base_size = 11) + # change size of text
+#   theme(axis.text.x=element_text(angle = 45, hjust = 1))
+#   ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
 
 # #Travel destination: Where have you been?
 # Berlin_count <- count(subset(indivData, indivData$Berlin=="1"))      #230 von 258 waren in Berlin 
@@ -437,7 +472,7 @@ ggplot(df, aes(x=reorder(city,-sum), y=sum)) +
 # #          y=indivData[1,4:23])
 # #funktioniert noch nicht..
 
-
+#-------------------------------------------------------------------------------------------
 
 #Purpose
 count(subset(indivData, indivData$Purpose1=="1")) #54 Visit family

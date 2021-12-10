@@ -170,10 +170,10 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(affordable,friendly, international,romantic,historical, fun, noisy, safe, trendy, green)
+profit.vector <- lm(cbind(Pref,affordable,friendly, international,romantic,historical, fun, noisy, safe, trendy, green, vibrant.nightlife,delicious.food, easy.to.get.around,good.shopping, cultural.events, interesting.museums, clean, too.touristic, beautiful, english.speaker.friendly)
                     ~ -1 + dim1 + dim2, data = data.eval)
 
-colnames(data.eval[5:24])#all attributes
+colnames(data.eval[5:25])#all attributes
 #profit.vector <- lm(cbind() # ein Beispiel mit friendly und historical. Kann beides ausgetauscht werden.
 #                    ~ -1 + dim1 + dim2, data = data.eval)
 
@@ -223,18 +223,18 @@ ggplot(data = subset(mds.selected, type == "point"),
   # Add vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector"),
                 aes(x = 0, y = 0, xend = dim1, yend = dim2),
-                col = "royalblue4",
+                col = "turquoise4",
                 arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector"),
             aes(label = City), 
-            col = "royalblue4",
+            col = "turquoise4",
             size = 5,
             hjust = 1.2, vjust = 1.4) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=600)  
-    
+  ggsave(file="MDS_vectoren.png", width=14, height=8, dpi=800)   # width=8 besser
+  #getwd()
     
 
   
