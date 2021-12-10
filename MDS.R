@@ -258,7 +258,7 @@ param <- data.frame(t(coef(profit.1)))
 param$City <- "Bachlor"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref"
+param$type <- "vector_occupation"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -270,7 +270,7 @@ param <- data.frame(t(coef(profit.2)))
 param$City <- "Master"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref"
+param$type <- "vector_occupation"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -282,7 +282,7 @@ param <- data.frame(t(coef(profit.3)))
 param$City <- "Other"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref"
+param$type <- "vector_occupation"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -299,12 +299,12 @@ ggplot(data = subset(mds.selected, type == "point"),
                    box.padding   = 0.8,
                    point.padding = 0.5) +
   # Add Vectors for attributes
-  geom_segment(data = subset(mds.selected, type == "vector_pref"),
+  geom_segment(data = subset(mds.selected, type == "vector_occupation"),
                aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
                col = "turquoise4",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
-  geom_text(data = subset(mds.selected, type == "vector_pref"),
+  geom_text(data = subset(mds.selected, type == "vector_occupation"),
             aes(label = City), 
             col = "turquoise4",
             size = 5,
@@ -336,7 +336,7 @@ param <- data.frame(t(coef(profit.1)))
 param$City <- "Single"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref_relationship"
+param$type <- "vector_relationship"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -348,7 +348,7 @@ param <- data.frame(t(coef(profit.2)))
 param$City <- "In Relationship"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref_relationship"
+param$type <- "vector_relationship"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -360,7 +360,7 @@ param <- data.frame(t(coef(profit.3)))
 param$City <- "Other"
 # reorder the columns
 param <- param[, c("City", "dim1", "dim2")]
-param$type <- "vector_pref_relationship"
+param$type <- "vector_relationship"
 # combine with mds.selected
 mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
@@ -377,12 +377,12 @@ ggplot(data = subset(mds.selected, type == "point"),
                    box.padding   = 0.8,
                    point.padding = 0.5) +
   # Add Vectors for attributes
-  geom_segment(data = subset(mds.selected, type == "vector_pref_relationship"),
+  geom_segment(data = subset(mds.selected, type == "vector_relationship"),
                aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
                col = "turquoise4",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
-  geom_text(data = subset(mds.selected, type == "vector_pref_relationship"),
+  geom_text(data = subset(mds.selected, type == "vector_relationship"),
             aes(label = City), 
             col = "turquoise4",
             size = 5,
@@ -391,7 +391,70 @@ ggplot(data = subset(mds.selected, type == "point"),
   theme_bw()
 #ggsave(file="MDS_vectoren_PartnershipStatus.png", width=8, height=8, dpi=800)   # width=8 besser
 
+### Vector Model mit Segmenten Gender ###
+# Column für Segment Gender with hinzufügen
+# subset of Single
+female <- subset(indivData, indivData$Gender== "Female") 
+length(unique(female$id_unique)) # Anzahl Ids in Single 148
+idListFemale <- unique(female$id_unique) # Liste mit den ids aus long.data
 
+# subset of Male
+male <- subset(indivData, indivData$Gender== "Male")
+length(unique(male$id_unique)) # Anzahl Ids in bachelor 110
+idListMale <- unique(male$id_unique) # Liste mit den ids aus long.data
+
+data.eval$Gender <- ifelse(data.eval$id_unique %in% idListFemale, "Female", "Male")
+
+
+# Male # 
+profit.1 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$Gender == "Male",])
+param <- data.frame(t(coef(profit.1)))
+param$City <- "Male"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_gender"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Female # 
+profit.2 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$Gender == "Female",])
+param <- data.frame(t(coef(profit.2)))
+param$City <- "Female"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_gender"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Plot
+ggplot(data = subset(mds.selected, type == "point"), 
+       aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors for attributes
+  geom_segment(data = subset(mds.selected, type == "vector_gender"),
+               aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
+               col = "turquoise4",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.selected, type == "vector_gender"),
+            aes(label = City), 
+            col = "turquoise4",
+            size = 5,
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+#ggsave(file="MDS_vectoren_gender.png", width=8, height=8, dpi=800)   # width=8 besser
 
   
 # Ideal-point Model -----------------------------------------------------------
