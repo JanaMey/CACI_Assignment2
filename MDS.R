@@ -206,7 +206,7 @@ ggplot(data = subset(mds.selected, type == "point"),
                    vjust = 1) +        # vertical adjustment of the positio
   labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
   theme_bw(base_size = 21)
-  ggsave(file="MDS.png", width=8, height=8, dpi=600)
+  #ggsave(file="MDS.png", width=8, height=8, dpi=600)
     
 # Plot
 ggplot(data = subset(mds.selected, type == "point"), 
@@ -233,9 +233,72 @@ ggplot(data = subset(mds.selected, type == "point"),
             hjust = 1.2, vjust = 1.4) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  ggsave(file="MDS_vectoren.png", width=14, height=8, dpi=800)   # width=8 besser
+  #ggsave(file="MDS_vectoren.png", width=14, height=8, dpi=800)   # width=8 besser
   #getwd()
     
+### Vector Model mit Segmenten Bachelor, Master, Other ###
+# Bachelor # 
+profit.1 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$Occupation == "Bachelor",])
+param <- data.frame(t(coef(profit.1)))
+param$City <- "Bachlor"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Master # 
+profit.2 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$Occupation == "Master",])
+param <- data.frame(t(coef(profit.2)))
+param$City <- "Master"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Other # 
+profit.3 <- lm(Pref ~ -1 + dim1 + dim2, 
+               data = data.eval[data.eval$Occupation == "Other",])
+param <- data.frame(t(coef(profit.3)))
+param$City <- "Other"
+# reorder the columns
+param <- param[, c("City", "dim1", "dim2")]
+param$type <- "vector_pref"
+# combine with mds.selected
+mds.selected <- rbind(mds.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Plot
+ggplot(data = subset(mds.selected, type == "point"), 
+       aes(x = dim1, y = dim2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors for attributes
+  geom_segment(data = subset(mds.selected, type == "vector_pref"),
+               aes(x = -dim1, y = -dim2, xend = dim1, yend = dim2),
+               col = "turquoise4",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.selected, type == "vector_pref"),
+            aes(label = City), 
+            col = "turquoise4",
+            size = 5,
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+#ggsave(file="MDS_vectoren_segmente.png", width=8, height=8, dpi=800)   # width=8 besser
+
 
   
 # Ideal-point Model -----------------------------------------------------------
