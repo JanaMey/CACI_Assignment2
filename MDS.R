@@ -170,7 +170,7 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(Pref,affordable,friendly, international,romantic,historical, fun, noisy, safe, trendy, green, vibrant.nightlife,delicious.food, easy.to.get.around,good.shopping, cultural.events, interesting.museums, clean, too.touristic, beautiful, english.speaker.friendly)
+profit.vector <- lm(cbind(affordable,romantic,historical,safe,clean,noisy,trendy, international,cultural.events,friendly,fun,green)#interesting.museums,easy.to.get.around,  delicious.food, too.touristic 
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 colnames(data.eval[5:25])#all attributes
@@ -217,7 +217,8 @@ ggplot(data = subset(mds.selected, type == "point"),
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
                    size  = 7,
-                   vjust = 1)+
+                   vjust = 1,
+                   col = 'grey27')+
                   #box.padding   = 0.8,
                   # point.padding = 0.5) +
   # Add vectors for attributes
@@ -230,11 +231,11 @@ ggplot(data = subset(mds.selected, type == "point"),
             aes(label = City), 
             col = "turquoise4",
             size = 5,
-            hjust = 1.2, vjust = 1.4) +
+            hjust = 1.0, vjust = 1.5) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  #ggsave(file="MDS_vectoren.png", width=14, height=8, dpi=800)   # width=8 besser
-  #getwd()
+  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=800)   # width=8 besser
+  getwd()
     
 ### Vector Model mit Segmenten Bachelor, Master, Other ###
 # Column für Segment Occupation hinzufügen
