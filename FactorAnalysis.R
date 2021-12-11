@@ -1,4 +1,4 @@
-# AUFGABE 3 #
+# # AUFGABE 3 #
 # Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, corrplot, psych,
                gplots, RColorBrewer, EFAtools, 
@@ -45,23 +45,24 @@ corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
 KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.874 suitable
 
-# Screeplot: Eigenvalues vs. number of factors
+# Screeplot: Eigenvalues vs. number of factors --> 4 values higher than 1 -> use 4 factors
 plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values, 
      type = "o",                 
      xlab = "Number of factors",   
      ylab = "Eigenvalues",
      pch = 16)                        
 abline(h = 1, col = "grey")
-#Use 4 factors?
+
 
 # Example Maximum Likelihood method for factor extraction
 ml.unrotated = fa(data.sc[, -c(1,2,3,4,25)], 
                   fm = "ml",            
-                  nfactors = 4,         # here testing with different factors
+                  nfactors = 4,         # here testing with different factors --> 4 bc eigenvalues > 1
                   rotate = "none",      # rotation in next step
                   scores ='regression') 
 
 ml.unrotated
+#results - cumulativeVar 47% - 
 
 #orthagonal rotation - rotate values from above - insert values from Assignment 2 (target: correlation more extreme)
 ml.rotated = fa(data.sc[, -c(1,2,3,4,25)], 
@@ -71,6 +72,16 @@ ml.rotated = fa(data.sc[, -c(1,2,3,4,25)],
                 scores ='regression') 
 
 ml.rotated
+
+#orthagonal rotation - allow for correlation between factors
+ml2.rotated = fa(data.sc[, -c(1,2,3,4,25)], 
+                fm = "ml",            
+                nfactors = 4,         
+                rotate = "oblimin",   
+                scores ='regression') 
+
+ml2.rotated 
+
 
 # heatmaps for loading visualization
 #Checken ob rotated bessere Lösung ist!!!
@@ -83,4 +94,8 @@ dev.off()
 
 # Visual representation of factor loadings
 fa.diagram(ml.rotated, main = "Rotated Factor Loadings")
+fa.diagram(ml2.rotated, main = "Rotated Factor Loadings with CORR")
 fa.diagram(ml.unrotated, main = "Unrotated Factor Loading")
+
+
+
