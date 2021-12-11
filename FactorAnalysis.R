@@ -98,4 +98,55 @@ fa.diagram(ml2.rotated, main = "Rotated Factor Loadings with CORR")
 fa.diagram(ml.unrotated, main = "Unrotated Factor Loading")
 
 
+#perceptual mapping
+scores.rotated <- data.frame(ml.rotated$scores)
+scores.rotated$City <- data.sc$City
+head(scores.rotated)
+mean_fa <- aggregate(.~City, data = scores.rotated, mean)
+
+ggplot(data = mean_fa, aes(x = ML1, y = ML2)) +
+  geom_point() + 
+  geom_vline(xintercept = 0, color = "grey50") +
+  geom_hline(yintercept = 0, color = "grey50") +
+  geom_text(aes(label = City, hjust = 0.5, vjust = 1.2)) +
+  labs(x = "Touristic Attraction", y = "Friendly Ambience") +
+  theme_classic()
+
+#Problem: We have two dimensions but four factors!!!
+
+#####################################################################################################
+#Comparison with MDS
+# compute mean distances
+City.dist = dist.i = NULL # initialize (creates an empty list)
+for(i in unique(data.sc$id_unique)){
+  
+  # To check what is done for each iteration, uncomment the line below
+  # and run step-by-step
+  # i = unique(attrEval$id_new)[1] # fix the i index
+  
+  # subset the data for each respondent i
+  data.sc.i = data.sc[data.sc$id_unique == i, -c(1, 2)]
+  data.sc.i = data.sc.i[order(data.sc.i$City), ] # sort by station
+  rownames(data.sc.i) <- data.sc.i$City
+  
+  dist.i[[i]] <- dist(data.sc.i[,-1], method = "euclidean")
+  City.dist[[i]] <- as.matrix(dist.i[[i]])
+  dist.i[[i]] <- as.dist(dist.i[[i]])
+  
+  # save as a data frame
+  City.dist[[i]] <- data.frame(City.dist[[i]])
+  
+  # add individual counter (id)
+  City.dist[[i]]$id_unique <- i
+  City.dist[[i]]$City <- rownames(data.sc.i)
+}
+
+# combine the list into one data frame
+City.dist <- do.call(rbind, City.dist)
+dim(City.dist)
+head(City.dist)
+
+...
+
+
 
