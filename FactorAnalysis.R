@@ -15,6 +15,17 @@ names(data.eval)
 summary(data.eval)
 dim(data.eval) #1401 25
 
+#rename variables
+names(data.eval)[9] <- "vibrant nightlife"
+names(data.eval)[10] <- "delicious food"
+names(data.eval)[11] <- "easy to get around"
+names(data.eval)[12] <- "good shopping"
+names(data.eval)[13] <- "cultural events"
+names(data.eval)[14] <- "interesting museums"
+names(data.eval)[18] <- "too touristic"
+names(data.eval)[24] <- "english-speaker-friendly"
+
+
 # Aufgabe 3 - Factor Analysis-----------------------------------------------------
 
 #copy data
@@ -45,6 +56,21 @@ corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
 KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.874 suitable
 
+# Correlation among Cities
+# Aggregate the data
+City.mean <- aggregate(.~City, data = data.sc[, -c(1:3)], mean) 
+rownames(City.mean) <- City.mean[, 1] # use brand for the row names
+City.mean <- City.mean[, -1] # remove brand name column
+
+# Heatmap
+heatmap.2(as.matrix(City.mean), # input should be a matrix
+          col = brewer.pal(9, "GnBu"), 
+          # turn off some default options not to clutter the plot
+          # try commenting them step by step to see what happens otherwise
+          trace = "none", 
+          key = FALSE, 
+          dend = "none")
+
 # Screeplot: Eigenvalues vs. number of factors --> 4 values higher than 1 -> use 4 factors
 plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values, 
      type = "o",                 
@@ -57,7 +83,7 @@ abline(h = 1, col = "grey")
 # Example Maximum Likelihood method for factor extraction
 ml.unrotated = fa(data.sc[, -c(1,2,3,4,25)], 
                   fm = "ml",            
-                  nfactors = 4,         # here testing with different factors --> 4 bc eigenvalues > 1
+                  nfactors = 3,         # here testing with different factors --> 4 bc eigenvalues > 1
                   rotate = "none",      # rotation in next step
                   scores ='regression') 
 
@@ -67,7 +93,7 @@ ml.unrotated
 #orthagonal rotation - rotate values from above - insert values from Assignment 2 (target: correlation more extreme)
 ml.rotated = fa(data.sc[, -c(1,2,3,4,25)], 
                 fm = "ml",            
-                nfactors = 4,         
+                nfactors = 3,         
                 rotate = "varimax",   
                 scores ='regression') 
 
@@ -108,11 +134,27 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML2)) +
   geom_point() + 
   geom_vline(xintercept = 0, color = "grey50") +
   geom_hline(yintercept = 0, color = "grey50") +
-  geom_text(aes(label = City, hjust = 0.5, vjust = 1.2)) +
+  geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
   labs(x = "Touristic Attraction", y = "Friendly Ambience") +
   theme_classic()
 
-#Problem: We have two dimensions but four factors!!!
+ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
+  geom_point() + 
+  geom_vline(xintercept = 0, color = "grey50") +
+  geom_hline(yintercept = 0, color = "grey50") +
+  geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
+  labs(x = "Touristic Attraction", y = "Cultural Experience") +
+  theme_classic()
+
+#ggplot(data = mean_fa, aes(x = ML4, y = ML3)) +
+  geom_point() + 
+  geom_vline(xintercept = 0, color = "grey50") +
+  geom_hline(yintercept = 0, color = "grey50") +
+  geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
+  labs(x = "Food and Price", y = "Cultural Experience") +
+  theme_classic()
+
+#Problem: We have two dimensions but three factors!!!
 
 #####################################################################################################
 #Comparison with MDS
