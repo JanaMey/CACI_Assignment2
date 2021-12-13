@@ -2,7 +2,8 @@
 # Install and load the required libraries ----------------------------------------
 pacman::p_load(reshape2, ggplot2, corrplot, psych,
                gplots, RColorBrewer, EFAtools, 
-               lavaan, semPlot, semTools)
+               lavaan, semPlot, semTools,
+               smacof, ggrepel, ggforce)
 
 # load data from git--------------------------------------------------------------
 urlfile<-'https://raw.githubusercontent.com/JanaMey/CACI_Assignment2/main/indivData.csv'
@@ -130,20 +131,20 @@ scores.rotated$City <- data.sc$City
 head(scores.rotated)
 mean_fa <- aggregate(.~City, data = scores.rotated, mean)
 
-ggplot(data = mean_fa, aes(x = ML1, y = ML2)) +
+ggplot(data = mean_fa, aes(x = ML2, y = ML1)) +
   geom_point() + 
   geom_vline(xintercept = 0, color = "grey50") +
   geom_hline(yintercept = 0, color = "grey50") +
   geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
-  labs(x = "Touristic Attraction", y = "Friendly Ambience") +
+  labs(x = "Relaxing Trip", y = "Amusement Trip") +
   theme_classic()
 
-ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
+ggplot(data = mean_fa, aes(x = ML3, y = ML1)) +
   geom_point() + 
   geom_vline(xintercept = 0, color = "grey50") +
   geom_hline(yintercept = 0, color = "grey50") +
   geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
-  labs(x = "Touristic Attraction", y = "Cultural Experience") +
+  labs(x = "Cultural Trip", y = "Amusement Trip") +
   theme_classic()
 
 #Problem: We have two dimensions but three factors!!!
@@ -283,7 +284,7 @@ param$type <- "vector_relationship"
 mds.conf <- rbind(mds.conf, param)
 rownames(mds.conf) <- NULL # overwrite the rownames
 
-# Couple # 
+# Couple
 profit.2 <- lm(Pref ~ -1 + D1 + D2, 
                data = data.sc[data.sc$PartnershipStatus == "In Relationship",])
 param <- data.frame(t(coef(profit.2)))
