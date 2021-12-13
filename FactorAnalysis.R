@@ -146,14 +146,6 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
   labs(x = "Touristic Attraction", y = "Cultural Experience") +
   theme_classic()
 
-#ggplot(data = mean_fa, aes(x = ML4, y = ML3)) +
-  geom_point() + 
-  geom_vline(xintercept = 0, color = "grey50") +
-  geom_hline(yintercept = 0, color = "grey50") +
-  geom_text(aes(label = City, hjust = 0.5, vjust = 1.3)) +
-  labs(x = "Food and Price", y = "Cultural Experience") +
-  theme_classic()
-
 #Problem: We have two dimensions but three factors!!!
 
 #####################################################################################################
@@ -164,10 +156,10 @@ for(i in unique(data.sc$id_unique)){
   
   # To check what is done for each iteration, uncomment the line below
   # and run step-by-step
-  # i = unique(attrEval$id_new)[1] # fix the i index
+  i = unique(data.sc$id_unique)[1] # fix the i index
   
   # subset the data for each respondent i
-  data.sc.i = data.sc[data.sc$id_unique == i, -c(1, 2)]
+  data.sc.i = data.sc[data.sc$id_unique == i, -c(1, 2, 3)]
   data.sc.i = data.sc.i[order(data.sc.i$City), ] # sort by station
   rownames(data.sc.i) <- data.sc.i$City
   
@@ -188,7 +180,160 @@ City.dist <- do.call(rbind, City.dist)
 dim(City.dist)
 head(City.dist)
 
-...
+# Compute mean dissimilarity between Cities across respondents
+dist.mean <- aggregate(City.dist[, -c(7,8)], 
+                       by = list(City = City.dist$City), 
+                       mean)
+
+rownames(dist.mean) <- dist.mean$City
+dist.mean = as.matrix(dist.mean[, -1])
+dist.mean
+
+# Metric MDS - interval transformation
+mds <- smacofSym(dist.mean, 
+                 ndim = 2, 
+                 type = "interval")
+
+mds.conf = data.frame(mds$conf)
+mds.conf$City = rownames(mds.conf)
+
+# Property fitting
+# Add coordinates to attrEval (original dataset)
+data.sc <- merge(data.sc, mds.conf, by = "City")
+head(data.sc)
+
+
+# Vector Model 
+#profit.vector <- lm(cbind(friendly, historical, affordable, trendy, `vibrant nightlife`,
+                          `delicious food`, `easy to get around`, `good shopping`, 
+                          `cultural events`, `interesting museums`, clean, green, international,
+                          `too touristic`, fun, noisy, romantic, safe, beautiful,
+                          `english-speaker-friendly`, Pref) 
+                    ~ -1 + D1 + D2, data = data.sc)
+
+profit.vector <- lm(cbind(Pref) 
+                    ~ -1 + D1 + D2, data = data.sc)
+
+param <- data.frame(t(coef(profit.vector)))
+param$City <- rownames(param)
+
+# reorder the columns
+param <- param[, c("City", "D1", "D2")]
+param$type <- "vector"
+
+# combine with mds.selected
+mds.conf$type <- "point"
+mds.conf <- rbind(mds.conf, param)
+rownames(mds.conf) <- NULL # overwrite the rownames
+
+# Plot
+ggplot(data = subset(mds.conf, type == "point"), 
+       aes(x = D1, y = D2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add vectors for attributes
+  geom_segment(data = subset(mds.conf, type == "vector"),
+               aes(x = 0, y = 0, xend = D1, yend = D2),
+               col = "darkblue",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.conf, type == "vector"),
+            aes(label = City), 
+            col = "darkblue",
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+
+#HIER STIMMT ETWAS NOCH NICHT.. WARUM NUR 6 STÄDTE?
+
+
+
+
+
+### Vector Model mit Segmenten Single vs Relationshipt vs Other ###
+# Column für Segment Travel with hinzufügen
+# subset of Single
+single <- subset(indivData, indivData$PartnershipStatus== "single") 
+length(unique(single$id_unique)) # Anzahl Ids in Single 105
+idListSingle <- unique(single$id_unique) # Liste mit den ids aus long.data
+
+# subset of in a relationship.
+couple <- subset(indivData, indivData$PartnershipStatus== "in a relationship.")
+length(unique(couple$id_unique)) # Anzahl Ids in bachelor 134
+idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
+
+data.sc$PartnershipStatus <- ifelse(data.sc$id_unique %in% idListSingle, "Single", 
+                                    ifelse(data.sc$id_unique %in% idListCouple, "In Relationship", "Other"))
+
+# Single # 
+profit.1 <- lm(Pref ~ -1 + D1 + D2, 
+               data = data.sc[data.sc$PartnershipStatus == "Single",])
+param <- data.frame(t(coef(profit.1)))
+param$City <- "Single"
+# reorder the columns
+param <- param[, c("City", "D1", "D2")]
+param$type <- "vector_relationship"
+# combine with mds.selected
+mds.conf <- rbind(mds.conf, param)
+rownames(mds.conf) <- NULL # overwrite the rownames
+
+# Couple # 
+profit.2 <- lm(Pref ~ -1 + D1 + D2, 
+               data = data.sc[data.sc$PartnershipStatus == "In Relationship",])
+param <- data.frame(t(coef(profit.2)))
+param$City <- "In Relationship"
+# reorder the columns
+param <- param[, c("City", "D1", "D2")]
+param$type <- "vector_relationship"
+# combine with mds.selected
+mds.conf <- rbind(mds.conf, param)
+rownames(mds.conf) <- NULL # overwrite the rownames
+
+# Other # 
+profit.3 <- lm(Pref ~ -1 + D1 + D2, 
+               data = data.sc[data.sc$PartnershipStatus == "Other",])
+param <- data.frame(t(coef(profit.3)))
+param$City <- "Other"
+# reorder the columns
+param <- param[, c("City", "D1", "D2")]
+param$type <- "vector_relationship"
+# combine with mds.selected
+mds.conf <- rbind(mds.conf, param)
+rownames(mds.conf) <- NULL # overwrite the rownames
+
+# Plot
+ggplot(data = subset(mds.conf, type == "point"), 
+       aes(x = D1, y = D2)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 2,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors for attributes
+  geom_segment(data = subset(mds.conf, type == "vector_relationship"),
+               aes(x = -D1, y = -D2, xend = D1*3, yend = D2*3),
+               col = "turquoise4",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(mds.conf, type == "vector_relationship"),
+            aes(label = City), 
+            col = "turquoise4",
+            size = 5,
+            hjust = -0.5, vjust = 1) +
+  labs(x = "Dimension 1", y = "Dimension 2") +
+  theme_bw()
+
+#Aber sind das jetzt die Preferences??
+
 
 
 
