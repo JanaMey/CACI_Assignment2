@@ -76,8 +76,8 @@ plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values,
      type = "o",                 
      xlab = "Number of factors", 
      ylab = "Eigenvalues",
-     cex.lab=1.3,
-     cex.axis=1.3,
+     cex.lab=1.5,
+     cex.axis=1.5,
      pch = 16)                        
 abline(h = 1, col = "grey")
 

@@ -170,7 +170,7 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(affordable,romantic,historical,safe,clean,noisy,trendy, international,cultural.events,friendly,fun,green)#interesting.museums,easy.to.get.around,  delicious.food, too.touristic 
+profit.vector <- lm(cbind(affordable,romantic,historical,safe,clean,noisy,trendy,international,cultural.events,friendly,fun,green,interesting.museums,easy.to.get.around,delicious.food,too.touristic,beautiful,vibrant.nightlife,good.shopping,english.speaker.friendly)# 
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 colnames(data.eval[5:25])#all attributes
@@ -224,17 +224,17 @@ ggplot(data = subset(mds.selected, type == "point"),
   # Add vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector"),
                 aes(x = 0, y = 0, xend = dim1, yend = dim2),
-                col = "turquoise4",
+                col = "midnightblue",
                 arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector"),
             aes(label = City), 
-            col = "turquoise4",
-            size = 5,
+            col = "midnightblue",
+            size = 5.5,
             hjust = 1.0, vjust = 1.5) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=800)   # width=8 besser
+  ggsave(file="MDS_vectoren.png", width=14, height=8, dpi=1000)   # width=8 besser
   getwd()
     
 ### Vector Model mit Segmenten Bachelor, Master, Other ###
@@ -289,6 +289,7 @@ mds.selected <- rbind(mds.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
 
 # Plot
+
 ggplot(data = subset(mds.selected, type == "point"), 
        aes(x = dim1, y = dim2)) +
   geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
@@ -302,16 +303,16 @@ ggplot(data = subset(mds.selected, type == "point"),
   # Add Vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector_occupation"),
                aes(x = -dim1, y = -dim2, xend = dim1*3, yend = dim2*3),
-               col = "turquoise4",
+               col = "midnightblue",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector_occupation"),
             aes(label = City), 
-            col = "turquoise4",
+            col = "midnightblue",
             size = 5,
             hjust = -0.5, vjust = 1) +
   labs(x = "Dimension 1", y = "Dimension 2") +
-  theme_bw()
+  theme_bw(base_size = 21)
 #ggsave(file="MDS_vectoren_segmente.png", width=8, height=8, dpi=800)   # width=8 besser
 
 
