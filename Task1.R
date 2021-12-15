@@ -236,12 +236,12 @@ subset(indivData, indivData$Age=="88") #ID 211
 #plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
 #boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
 ggplot(data = indivData, aes(x = Age)) + #fill: variable for differencing ('target)
-  geom_histogram(bins = 43, col = "white", fill ="turquoise4") + # position dodge: next to each other
+  geom_histogram(bins = 43, col = "white", fill ="midnightblue") + # position dodge: next to each other
   labs(x = "Age", y = "Frequency") +
  # grid(TRUE)+
   scale_x_continuous(breaks = seq(0, 90, by = 5)) +
   theme_classic(base_size = 10)# change size of text
-  ggsave(file="age_ditribution.png", width=8, height=3, dpi=600) 
+  ggsave(file="age_ditribution.png", width=7, height=2.5, dpi=600) 
 #Outlier eleminieren
 indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
 dim(indivData) #Jetzt nur noch 258
@@ -341,7 +341,7 @@ summary(indivData$Age) #average 25 years old, 18 Minimum, 63 Maximum
 #Gender
 indivData[,"Gender"] <- as.factor(indivData[,"Gender"])
 #png("Gender.png", width=300, height=450)
-plot(indivData$Gender)
+#plot(indivData$Gender)
 #dev.off()
 summary(indivData$Gender) #148 Female, 110 Male
 148/258
@@ -354,7 +354,6 @@ prop.table(table(indivData$Occupation))
 
 #Number of Trips
 summary(indivData$Number_of_Trips) #Mean 3 -> 2-3 times
-
 table(indivData$Number_of_Trips, indivData$PartnershipStatus)
 
 #Nationality
@@ -404,12 +403,12 @@ df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort
 
 #Barplot df
 ggplot(df, aes(x=reorder(city,-sum), y=sum)) + 
-  geom_bar(stat = "identity", fill='turquoise4') +
-  geom_text(aes(label=V1)) +
+  geom_bar(stat = "identity", fill='midnightblue') +
+  geom_text(aes(label=V1), vjust = -0.3) +
   labs(x = "", y = "Frequency of Visits") +
-  theme_classic(base_size = 11) + # change size of text
+  theme_classic(base_size = 12) + # change size of text
   theme(axis.text.x=element_text(angle = 45, hjust = 1))
-ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
+ggsave(file="city_ditribution.png", width=8, height=5, dpi=600)  
 
 #--------------------------------------------------alter code f�r travel destination
 # #Travel destination: Where have you been?
@@ -506,9 +505,9 @@ count(subset(indivData, indivData$With_Whom_5=="1")) #69 by yourslelf
 # Am Ende von Task 1 Datensätze für die anderen Aufgaben speichern.
 data.eval[, -c(1, 2, 3, 4)] <- scale(data.eval[, -c(1, 2, 3, 4)])
 summary(data.eval)
-#mainPath <- file.path("C:/Users/Lilli/Google Drive/2021CACI/Assignment02/CACI_Assignment2")
-#setwd(mainPath)
-#getwd()
+# mainPath <- file.path("C:/Users/Lilli/Google Drive/2021CACI/Assignment02/CACI_Assignment2")
+# setwd(mainPath)
+# getwd()
 write.csv(data.eval, file = "dataEvalScale.csv", row.names = FALSE)
 write.csv(indivData, file = "indivData.csv", row.names = FALSE)
 

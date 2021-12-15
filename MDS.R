@@ -57,11 +57,11 @@ corrplot(cor(dist.onmean),
          method = "number", # besser mit method = "color" aber da brauchen wir einen cutoff. Wie geht das?
          #insig = 'blank',
          type = "upper",
-         tl.cex = 0.75,
+         tl.cex = 1.2,
          tl.col = "black",
          addCoef.col ='grey28',
          number.digits = 1,
-         number.cex = 0.65)
+         number.cex = 0.9)
 
 
 # Let's define a vector of different mds methods
@@ -138,21 +138,21 @@ stress
 # Overwrite mds_method as a factor with levels as in the vector we defined
 # This is going to help to visualize the plots in the order we want
 mds$mds_method <- factor(mds$mds_method, levels = mds_method)
-
+# 
 # For distance method: distances on mean evals
-ggplot(data = subset(mds, dist_method == "dist.onmean"), 
-       aes(x = dim1, y = dim2)) +
-  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
-  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
-  geom_point() +
-  # Add text labels using ggrepel package
-  geom_label_repel(aes(label = City),
-                   size          = 2,
-                   box.padding   = 0.8,
-                   point.padding = 0.5) +
-  facet_wrap(.~mds_method, scales = "free", nrow = 1) +
-  labs(x = "Dimension 1", y = "Dimension 2") +
-  theme_bw()
+# ggplot(data = subset(mds, dist_method == "dist.onmean"), 
+#        aes(x = dim1, y = dim2)) +
+#   geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+#   geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+#   geom_point() +
+#   # Add text labels using ggrepel package
+#   geom_label_repel(aes(label = City),
+#                    size          = 2,
+#                    box.padding   = 0.8,
+#                    point.padding = 0.5) +
+#   facet_wrap(.~mds_method, scales = "free", nrow = 1) +
+#   labs(x = "Dimension 1", y = "Dimension 2") +
+#   theme_bw()
 
 
 # Property Fitting ============================================================
@@ -206,7 +206,7 @@ ggplot(data = subset(mds.selected, type == "point"),
                    vjust = 1) +        # vertical adjustment of the positio
   labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
   theme_bw(base_size = 21)
-  #ggsave(file="MDS.png", width=8, height=8, dpi=600)
+  ggsave(file="MDS.png", width=8, height=8, dpi=600)
     
 # Plot
 ggplot(data = subset(mds.selected, type == "point"), 
