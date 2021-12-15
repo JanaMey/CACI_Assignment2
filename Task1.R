@@ -506,6 +506,9 @@ count(subset(indivData, indivData$With_Whom_5=="1")) #69 by yourslelf
 # Am Ende von Task 1 Datensätze für die anderen Aufgaben speichern.
 data.eval[, -c(1, 2, 3, 4)] <- scale(data.eval[, -c(1, 2, 3, 4)])
 summary(data.eval)
+#mainPath <- file.path("C:/Users/Lilli/Google Drive/2021CACI/Assignment02/CACI_Assignment2")
+#setwd(mainPath)
+#getwd()
 write.csv(data.eval, file = "dataEvalScale.csv", row.names = FALSE)
 write.csv(indivData, file = "indivData.csv", row.names = FALSE)
 
