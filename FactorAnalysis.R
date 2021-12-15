@@ -172,6 +172,10 @@ idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
 data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Single",
                                       ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Married"))
 
+summary(couple$Avg_Budget)
+summary(single$Avg_Budget)
+summary(couple$Avg_Budget)
+
 ## Add Factors M1-M3 to data.eval as new columns
 data.eval <- merge(data.eval, mean_fa, by = "City")
 head(data.eval)
@@ -257,13 +261,7 @@ length(unique(single$id_unique)) # Anzahl Ids in Single 105
 idListSingle <- unique(single$id_unique) # Liste mit den ids aus long.data
 
 # subset of in a relationship.
-couple <- subset(indivData, indivData$PartnershipStatus== "in a relationship.")
-length(unique(couple$id_unique)) # Anzahl Ids in bachelor 134
-idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
-
-data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Single",
-                                      ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Married"))
-
+,
 ## Add Factors M1-M3 to data.eval as new columns
 data.eval <- merge(data.eval, mean_fa, by = "City")
 head(data.eval)
@@ -274,7 +272,8 @@ profit.1 <- lm(Pref ~ -1 + ML1 + ML3,
 param <- data.frame(t(coef(profit.1)))
 param$City <- "Single"
 # reorder the columns
-param <- param[, c("City", "ML1", "ML3")]
+param <- param[, c("City"mn0
+                   ßi, "ML1", "ML3")]
 param$type <- "vector_relationship"
 param
 # combine with fa.selected
@@ -337,7 +336,7 @@ getwd()
 
 
 
-       
+
 ######################################################################################################
 # #Comparison with MDS
 # # compute mean distances
@@ -523,7 +522,3 @@ getwd()
 #   theme_bw()
 # 
 # #Aber sind das jetzt die Preferences??
-
-
-
-
