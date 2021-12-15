@@ -33,7 +33,7 @@ dim(indivData) # 258 43
 # Derive Proximity Measure =====================================================
 # Compute Euclidean distance measure (aggregate-level)
 # Compute dissimilarity on mean attribute evaluations --------------------------
-cities.mean <- aggregate(data.eval[, -c(1, 2, 3, 4)], # 25: without preferences
+cities.mean <- aggregate(data.eval[, -c(1, 2, 3, 4, 25)], # 25: without preferences
                          by = list(city = data.eval$City), 
                          FUN = mean)
 rownames(cities.mean) <- cities.mean$city
