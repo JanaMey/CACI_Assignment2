@@ -14,15 +14,16 @@ str(indivData)
 head(indivData)
 dim(indivData) # 258 43
 
-# #rename variables
-# names(data.eval)[9] <- "vibrant nightlife"
-# names(data.eval)[10] <- "delicious food"
-# names(data.eval)[11] <- "easy to get around"
-# names(data.eval)[12] <- "good shopping"
-# names(data.eval)[13] <- "cultural events"
-# names(data.eval)[14] <- "interesting museums"
-# names(data.eval)[18] <- "too touristic"
-# names(data.eval)[24] <- "english-speaker-friendly"
+#rename variables
+names(data.eval)[9] <- "vibrant nightlife"
+names(data.eval)[10] <- "delicious food"
+names(data.eval)[11] <- "easy to get around"
+names(data.eval)[12] <- "good shopping"
+names(data.eval)[13] <- "cult. events"
+names(data.eval)[14] <- "interesting museums"
+names(data.eval)[18] <- "too touristic"
+names(data.eval)[24] <- "english-speaker-friendly"
+
 ########################################################################
 ########################################################################
 # Ab hier Aufgabe 2 MDS
@@ -178,7 +179,8 @@ head(data.eval)
 # Vector Model ----------------------------------------------------------------
 # Example for attributes informative and exciting
 # we suppress the intercept, so that the vectors go through the origin
-profit.vector <- lm(cbind(affordable,romantic,historical,safe,clean,noisy,trendy,international,friendly,fun,green)#,interesting.museums,easy.to.get.around,delicious.food,too.touristic,beautiful,vibrant.nightlife,good.shopping,english.speaker.friendly,cultural.events 
+profit.vector <- lm(cbind(affordable,romantic,historical,safe,clean,noisy,trendy,international,friendly,fun,green,`cult. events`,beautiful)
+                    #,`interesting museums`, `easy to get around`,`delicious food`,`too touristic`,`vibrant nightlife`,`good shopping`,`english-speaker-friendly`
                     ~ -1 + dim1 + dim2, data = data.eval)
 
 colnames(data.eval[5:25])#all attributes
@@ -242,7 +244,8 @@ ggplot(data = subset(mds.selected, type == "point"),
             hjust = 1.0, vjust = 1.5) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=1000)   # width=8 besser
+  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=1000)
+  #ggsave(file="MDS_vectoren_alle.png", width=14, height=8, dpi=1000)   # width=8 besser
   getwd()
     
 ### Vector Model mit Segmenten Bachelor, Master, Other ###
