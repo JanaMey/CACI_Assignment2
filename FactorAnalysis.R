@@ -35,8 +35,8 @@ data.sc <- data.eval
 corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
          #method = "number",
          #insig = 'blank',
-         type = "lower",
-         tl.cex = 0.75,
+         type = "upper",
+         tl.cex = 1.2,
          tl.col = "black")
 #addCoef.col ='grey28')
 #number.digits = 1,
@@ -46,12 +46,12 @@ corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
 corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
          method = "number",
          #insig = 'blank',
-         type = "lower",
-         tl.cex = 0.75,
+         type = "upper",
+         tl.cex = 1.2,
          tl.col = "black",
          addCoef.col ='grey28',
          number.digits = 1,
-         number.cex = 0.65)
+         number.cex = 0.9)
 
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
 KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.874 suitable
@@ -174,6 +174,7 @@ data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Si
 data.eval <- merge(data.eval, mean_fa, by = "City")
 head(data.eval)
 
+#For PLOT 2D: ML1,ML2
 # Single #
 profit.1 <- lm(Pref ~ -1 + ML1 + ML2,
                data = data.eval[data.eval$PartnershipStatus == "Single",])
@@ -239,6 +240,104 @@ ggplot(data = subset(fa.selected, type == "point"),
   theme_classic(base_size = 15)
 ggsave(file="FA_vectoren.png", width=8, height=8, dpi=900)
 getwd()
+
+##########################################
+#For PLOT 2D: ML1,ML3
+
+#FA_selected => citys and 2 Factors Points in the map
+fa.selected<- mean_fa[,-4] #nur City,ML1,ML2
+fa.selected$type <- "point"
+fa.selected
+#Column für Segment Travel with hinzufügen
+#subset of Single
+single <- subset(indivData, indivData$PartnershipStatus== "single")
+length(unique(single$id_unique)) # Anzahl Ids in Single 105
+idListSingle <- unique(single$id_unique) # Liste mit den ids aus long.data
+
+# subset of in a relationship.
+couple <- subset(indivData, indivData$PartnershipStatus== "in a relationship.")
+length(unique(couple$id_unique)) # Anzahl Ids in bachelor 134
+idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
+
+data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Single",
+                                      ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Married"))
+
+## Add Factors M1-M3 to data.eval as new columns
+data.eval <- merge(data.eval, mean_fa, by = "City")
+head(data.eval)
+
+# Single #
+profit.1 <- lm(Pref ~ -1 + ML1 + ML3,
+               data = data.eval[data.eval$PartnershipStatus == "Single",])
+param <- data.frame(t(coef(profit.1)))
+param$City <- "Single"
+# reorder the columns
+param <- param[, c("City", "ML1", "ML3")]
+param$type <- "vector_relationship"
+param
+# combine with fa.selected
+fa.selected <- rbind(fa.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# # Couple # 
+profit.2 <- lm(Pref ~ -1 + ML1 + ML3,
+               data = data.eval[data.eval$PartnershipStatus == "In Relationship",])
+param <- data.frame(t(coef(profit.2)))
+param$City <- "In Relationship"
+# reorder the columns
+param <- param[, c("City", "ML1", "ML3")]
+param$type <- "vector_relationship"
+# combine with fa.selected
+fa.selected <- rbind(fa.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+# Other #
+profit.3 <- lm(Pref ~ -1 + ML1 + ML3,
+               data = data.eval[data.eval$PartnershipStatus == "Married",])
+param <- data.frame(t(coef(profit.3)))
+param$City <- "Married"
+# reorder the columns
+param <- param[, c("City", "ML1", "ML3")]
+param$type <- "vector_relationship"
+# combine with fa.selected
+fa.selected <- rbind(fa.selected, param)
+rownames(mds.selected) <- NULL # overwrite the rownames
+
+#-------------#
+# Plot2
+ggplot(data = subset(fa.selected, type == "point"), 
+       aes(x = ML1, y = ML3)) +
+  geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_hline(yintercept = 0, col = "grey50", linetype = "dotted") +
+  geom_point() +
+  # Add text labels using ggrepel package
+  geom_label_repel(aes(label = City),
+                   size          = 4,
+                   box.padding   = 0.8,
+                   point.padding = 0.5) +
+  # Add Vectors 
+  geom_segment(data = subset(fa.selected, type == "vector_relationship"),
+               aes(x = -ML1, y = -ML3, xend = ML1*2, yend = ML3*2),
+               col = "midnightblue",
+               arrow = arrow(length = unit(0.5, "cm"))) +
+  # Add vector labels
+  geom_text(data = subset(fa.selected, type == "vector_relationship"),
+            aes(label = City), 
+            col = "midnightblue",
+            size = 5,
+            hjust = 0, vjust =1.5) +
+  labs(x = "Amusement Trip", y = "Culture Trip") +
+  xlim(-1.3, 1.3)+
+  theme_classic(base_size = 15)
+ggsave(file="FA_vectoren_culture.png", width=8, height=8, dpi=900)
+getwd()
+
+
+
+
+
+
+
 
        
 ######################################################################################################
