@@ -236,12 +236,12 @@ subset(indivData, indivData$Age=="88") #ID 211
 #plot(indivData$Age) #hauptsächlich zwischen 20 und 30 Jahre alt
 #boxplot(indivData$Age) #die 40-60 Jährigen aber drin lassen
 ggplot(data = indivData, aes(x = Age)) + #fill: variable for differencing ('target)
-  geom_histogram(bins = 43, col = "white", fill ="midnightblue") + # position dodge: next to each other
+  geom_histogram(bins = 43, col = "white", fill ="grey24") + # position dodge: next to each other
   labs(x = "Age", y = "Frequency") +
  # grid(TRUE)+
   scale_x_continuous(breaks = seq(0, 90, by = 5)) +
-  theme_classic(base_size = 10)# change size of text
-  ggsave(file="age_ditribution.png", width=7, height=2.5, dpi=600) 
+  theme_classic(base_size = 15)# change size of text
+  ggsave(file="age_ditribution.png", width=8, height=3, dpi=600) 
 #Outlier eleminieren
 indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
 dim(indivData) #Jetzt nur noch 258
@@ -306,14 +306,14 @@ dataMean
 # #removed 515 rows ?!
 # 
 # 
-ggplot(data = data.longer, aes(y = City, x = value)) +
-  geom_bar(stat = "summary", fun = "mean") +
-  geom_vline(data = dataMean, aes(xintercept = x),
-             linetype = "dashed") +
-  facet_wrap(attribute~.) +
-  scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
-  labs(x = "", y = "") +
-  theme_bw()
+# ggplot(data = data.longer, aes(y = City, x = value)) +
+#   geom_bar(stat = "summary", fun = "mean") +
+#   geom_vline(data = dataMean, aes(xintercept = x),
+#              linetype = "dashed") +
+#   facet_wrap(attribute~.) +
+#   scale_x_continuous(limits = c(0, 5), breaks = c(0:5)) +
+#   labs(x = "", y = "") +
+#   theme_bw()
 # #Pref muss raus, weil Pref von 1-7 geht, die Evals von 1-5!!! #and removed 515 rows ?!
 # 
 # ggplot(data = data.longer, aes(y = City, x = value)) +
@@ -403,12 +403,13 @@ df <- df[order(as.integer(df$sum),decreasing = FALSE), ] # sort
 
 #Barplot df
 ggplot(df, aes(x=reorder(city,-sum), y=sum)) + 
-  geom_bar(stat = "identity", fill='midnightblue') +
-  geom_text(aes(label=V1), vjust = -0.3) +
+  geom_bar(stat = "identity", fill='grey24') +
+  geom_text(aes(label=V1), vjust = -0.3, show.legend =TRUE, colour = "darkred", size=4.5) +
   labs(x = "", y = "Frequency of Visits") +
-  theme_classic(base_size = 12) + # change size of text
-  theme(axis.text.x=element_text(angle = 45, hjust = 1))
-ggsave(file="city_ditribution.png", width=8, height=5, dpi=600)  
+  ylim(0,250)+
+  theme_classic(base_size = 17) + # change size of text
+  theme(axis.text.x=element_text(angle = 40, hjust = 1))
+ggsave(file="city_ditribution.png", width=8, height=4, dpi=600)  
 
 #--------------------------------------------------alter code f�r travel destination
 # #Travel destination: Where have you been?
