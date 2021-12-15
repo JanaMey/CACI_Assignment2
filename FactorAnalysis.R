@@ -42,16 +42,16 @@ corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
 #number.digits = 1,
 #number.cex = 0.65)
 
-#Corrplot without Circles
-corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
-         method = "number",
-         #insig = 'blank',
-         type = "upper",
-         tl.cex = 1.2,
-         tl.col = "black",
-         addCoef.col ='grey28',
-         number.digits = 1,
-         number.cex = 0.9)
+# #Corrplot without Circles
+# corrplot(cor(data.sc[, -c(1,2,3,4,25)]),
+#          method = "number",
+#          #insig = 'blank',
+#          type = "upper",
+#          tl.cex = 1.2,
+#          tl.col = "black",
+#          addCoef.col ='grey28',
+#          number.digits = 1,
+#          number.cex = 0.9)
 
 # Test KMO Criterion - check if higher than 0.5? --> if yes than data suitable for factor analysis
 KMO(cor(data.sc[, -c(1,2,3,4,25)])) #0.874 suitable
@@ -62,14 +62,14 @@ City.mean <- aggregate(.~City, data = data.sc[, -c(1:3)], mean)
 rownames(City.mean) <- City.mean[, 1] # use brand for the row names
 City.mean <- City.mean[, -1] # remove brand name column
 
-# Heatmap
-heatmap.2(as.matrix(City.mean), # input should be a matrix
-          col = brewer.pal(9, "GnBu"), 
-          # turn off some default options not to clutter the plot
-          # try commenting them step by step to see what happens otherwise
-          trace = "none", 
-          key = FALSE, 
-          dend = "none")
+# # Heatmap
+# heatmap.2(as.matrix(City.mean), # input should be a matrix
+#           col = brewer.pal(9, "GnBu"), 
+#           # turn off some default options not to clutter the plot
+#           # try commenting them step by step to see what happens otherwise
+#           trace = "none", 
+#           key = FALSE, 
+#           dend = "none")
 
 # Screeplot: Eigenvalues vs. number of factors --> 4 values higher than 1 -> use 4 factors
 plot(eigen(cor(data.sc[, -c(1,2,3,4,25)]))$values, 
@@ -114,12 +114,12 @@ ml2.rotated
 
 # heatmaps for loading visualization
 #Checken ob rotated bessere Lösung ist!!!
-png("Heatmap for Loading visualization.png", width=300, height = 300)
-heatmap.2(ml.rotated$loadings,
-          col = brewer.pal(9, "Greens"), 
-          trace="none", key = FALSE , dend = "none",
-          Colv = FALSE , cexCol = 1.2)
-dev.off()
+# png("Heatmap for Loading visualization.png", width=300, height = 300)
+# heatmap.2(ml.rotated$loadings,
+#           col = brewer.pal(9, "Greens"), 
+#           trace="none", key = FALSE , dend = "none",
+#           Colv = FALSE , cexCol = 1.2)
+# dev.off()
 
 # Visual representation of factor loadings
 fa.diagram(ml.rotated, main = "Rotated Factor Loadings")
@@ -141,6 +141,7 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML2)) +
   labs(x = "Amusement trip", y = "Relaxing Trip") +
   xlim(-1.3, 1.3)+
   theme_classic(base_size = 15)
+ggsave(file="FA_PercMap.png", width=8, height=8, dpi=600)  
 
 ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
   geom_point() + 
@@ -150,6 +151,7 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
   labs(x = "Amusement trip", y = "Culture Trip") +
   xlim(-1.3, 1.3)+
   theme_classic(base_size = 15)
+ggsave(file="FA_PercMap_Culture.png", width=8, height=8, dpi=600)  
 
 #----------------------------------------Preference mapping--------------------------------------
 #FA_selected => citys and 2 Factors Points in the map
