@@ -153,7 +153,6 @@ head(data.long)
 str(data.long)
 
 data.eval <- data.long #copy the data
-#write.csv(data.eval, file = "data.eval.csv", row.names = FALSE)
 
 ####################################################################################################
 #ALTERNATIVE 1 (alle IDs rauswerfen, machen wir aber nicht: Gehe zu ALTERNATIVE 2)
@@ -195,6 +194,7 @@ any(is.na(data.eval)) #false
 dim(data.eval) #1431 25 -> von 1596 sind 165 rausgefallen
 length(unique(data.eval$id_unique)) #wir haben noch 264 von 266 IDs
 
+
 ###################################################################################################
 ########################################################################
 #Sample description sociodemographics and City attributes and preferences
@@ -206,21 +206,26 @@ str(indivData)
 #indivData <- melt(indivData, id.vars = c("Sample", "ID", "id_unique"))
 
 
-#Let's delete the NAs (survey non respondents)
+##Delete the NAs (survey non respondents)
 any(is.na(indivData)) #True
-indivData <- indivData[!is.na(indivData$Age), ] #deleted 4
+indivData <- indivData[!is.na(indivData$Age), ] # deleted 4 ids #
 length(unique(indivData$id_unique)) #262
 any(is.na(indivData)) #False
 dim(indivData) #262 43
 
-# #delete NAN mit omit => gleiches resultat
-# dim(indivData) 
-# indivData <- na.omit(indivData)
-# any(is.na(indivData)) #false
-# dim(indivData) 
-# length(unique(indivData$id_unique)) 
+##Rel.ship
+# "" rauswerfen
+unique(indivData$PartnershipStatus)
+length(unique(indivData$PartnershipStatus))#5
+indivData<-subset(indivData, PartnershipStatus!= "")# delete 2 ids #
+length(unique(indivData$PartnershipStatus)) # test ok: 4
+dim(indivData) #260 43
+#don't trust no hoe zu singles
+indivData$PartnershipStatus[indivData$PartnershipStatus == "don't trust no hoe"] <- "single"
+unique(indivData$PartnershipStatus)#test ok
+dim(indivData) #260 43 ok
 
-#AGE: Minderjaehriege entfernen (Outlier)
+##AGE: Minderjaehriege entfernen (Outlier)
 min(indivData$Age)
 max(indivData$Age)
 length(unique(indivData)) # get number of age levels for number of bins 43
@@ -239,23 +244,25 @@ ggplot(data = indivData, aes(x = Age)) + #fill: variable for differencing ('targ
   ggsave(file="age_ditribution.png", width=8, height=3, dpi=600) 
 #Outlier eleminieren
 indivData <- subset(indivData, indivData$Age>15 & indivData$Age<81)
-dim(indivData) #Jetzt nur noch 260
+dim(indivData) #Jetzt nur noch 258
 
 #ID Abgleich: Schnittmenge ermitteln 
 #nur IDs in indivData lassen, die auch in data.eval vorkommen
 length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
-length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 260
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 258
 idList<- unique(data.eval$id_unique) # Liste mit den ids aus long.data
 indivData <- subset(indivData, indivData$id_unique %in% idList)# anpassung der Ids
-length(unique(indivData$id_unique))# 258
+length(unique(indivData$id_unique))# 257
 #"umgekehrte Richtung" zu Sicherheit: nur IDs in data.eval lassen die auch in IndivData vorkommen
 length(unique(data.eval$id_unique)) # Anzahl Ids in eval.data 264
-length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 258
+length(unique(indivData$id_unique)) # Anzahl Ids in individual.data 257
 idList<- unique(indivData$id_unique) # Liste mit den ids aus long.data
 data.eval <- subset(data.eval, data.eval$id_unique %in% idList)# anpassung der Ids
-length(unique(data.eval$id_unique)) # wir haben noch 258 von 266 IDs
+length(unique(data.eval$id_unique)) # wir haben noch 257 von 266 IDs
 
-#JETZT KOENNEN WIR MIT DIESEN 258 IDs WEITER ARBEITEN! :)
+dim(indivData) #257  43
+dim(data.eval) #1395   25
+#JETZT KOENNEN WIR MIT DIESEN 257 IDs WEITER ARBEITEN! :)
 
 #Mean for Evaluations
 #merge to even longer format
@@ -499,6 +506,6 @@ count(subset(indivData, indivData$With_Whom_5=="1")) #69 by yourslelf
 # Am Ende von Task 1 Datensätze für die anderen Aufgaben speichern.
 data.eval[, -c(1, 2, 3, 4)] <- scale(data.eval[, -c(1, 2, 3, 4)])
 summary(data.eval)
-#write.csv(data.eval, file = "dataEvalScale.csv", row.names = FALSE)
-#write.csv(indivData, file = "indivData.csv", row.names = FALSE)
+write.csv(data.eval, file = "dataEvalScale.csv", row.names = FALSE)
+write.csv(indivData, file = "indivData.csv", row.names = FALSE)
 
