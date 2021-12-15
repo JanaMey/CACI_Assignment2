@@ -216,7 +216,7 @@ ggplot(data = subset(mds.selected, type == "point"),
                    vjust = 1) +        # vertical adjustment of the positio
   labs(x = "Dimension 1", y = "Dimension 2") + #x = "Comfortable", y = "Exciting"
   theme_bw(base_size = 21)+
-  ggsave(file="MDS.png", width=8, height=8, dpi=600)
+  #ggsave(file="MDS.png", width=8, height=8, dpi=600)
     
 # Plot
 ggplot(data = subset(mds.selected, type == "point"), 
@@ -242,9 +242,10 @@ ggplot(data = subset(mds.selected, type == "point"),
             col = "midnightblue",
             size = 5.5, #5.5
             hjust = 1.0, vjust = 1.5) +
+          # check_overlap = TRUE)+
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-  ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=1000)
+  #ggsave(file="MDS_vectoren.png", width=8, height=8, dpi=1000)
   #ggsave(file="MDS_vectoren_alle.png", width=14, height=8, dpi=1000)   # width=8 besser
   getwd()
     
@@ -394,17 +395,20 @@ ggplot(data = subset(mds.selected, type == "point"),
   # Add Vectors for attributes
   geom_segment(data = subset(mds.selected, type == "vector_relationship"),
                aes(x = -dim1, y = -dim2, xend = dim1*2, yend = dim2*2),
-               col = "midnightblue",
-               arrow = arrow(length = unit(0.7, "cm"))) +
+               #col = "midnightblue",
+               colour=c("darkred","darkgreen","darkblue"),
+               arrow = arrow(length = unit(0.7, "cm")),size = 1.0) +
   # Add vector labels
   geom_text(data = subset(mds.selected, type == "vector_relationship"),
             aes(label = City), 
-            col = "midnightblue",
-            size = 6, #5,
-            hjust = 0.5, vjust = 1.2) +# hjust = -0.5, vjust = 1) +
+            #col = "midnightblue",
+            colour=c("darkred","darkgreen","darkblue"),
+            size = 8, #5,
+            hjust = 0, vjust = 1.0,
+            check_overlap = TRUE) +# hjust = -0.5, vjust = 1) +
   labs(x = "Dimension 1", y = "Dimension 2") +
   theme_bw(base_size = 21)
-ggsave(file="MDS_vectoren_PartnershipStatus.png", width=10, height=8, dpi=800)   # width=8 besser
+#ggsave(file="MDS_vectoren_PartnershipStatus.png", width=12, height=8, dpi=800)   # width=8 besser
 
 # ### Vector Model mit Segmenten Gender ###
 # # Column für Segment Gender with hinzufügen
