@@ -168,7 +168,7 @@ length(unique(couple$id_unique)) # Anzahl Ids in bachelor 134
 idListCouple <- unique(couple$id_unique) # Liste mit den ids aus long.data
 
 data.eval$PartnershipStatus <- ifelse(data.eval$id_unique %in% idListSingle, "Single",
-                                      ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Other"))
+                                      ifelse(data.eval$id_unique %in% idListCouple, "In Relationship", "Married"))
 
 ## Add Factors M1-M3 to data.eval as new columns
 data.eval <- merge(data.eval, mean_fa, by = "City")
@@ -201,9 +201,9 @@ rownames(mds.selected) <- NULL # overwrite the rownames
 
 # Other #
 profit.3 <- lm(Pref ~ -1 + ML1 + ML2,
-               data = data.eval[data.eval$PartnershipStatus == "Other",])
+               data = data.eval[data.eval$PartnershipStatus == "Married",])
 param <- data.frame(t(coef(profit.3)))
-param$City <- "Other"
+param$City <- "Married"
 # reorder the columns
 param <- param[, c("City", "ML1", "ML2")]
 param$type <- "vector_relationship"
@@ -212,7 +212,7 @@ fa.selected <- rbind(fa.selected, param)
 rownames(mds.selected) <- NULL # overwrite the rownames
 
 #-------------#
-# Plot
+# Plot1
 ggplot(data = subset(fa.selected, type == "point"), 
        aes(x = ML1, y = ML2)) +
   geom_vline(xintercept = 0, col = "grey50", linetype = "dotted") +
@@ -225,19 +225,22 @@ ggplot(data = subset(fa.selected, type == "point"),
                    point.padding = 0.5) +
   # Add Vectors 
   geom_segment(data = subset(fa.selected, type == "vector_relationship"),
-               aes(x = -ML1, y = -ML2, xend = ML1*3, yend = ML2*3),
-               col = "turquoise4",
+               aes(x = -ML1, y = -ML2, xend = ML1*2, yend = ML2*2),
+               col = "midnightblue",
                arrow = arrow(length = unit(0.5, "cm"))) +
   # Add vector labels
   geom_text(data = subset(fa.selected, type == "vector_relationship"),
             aes(label = City), 
-            col = "turquoise4",
+            col = "midnightblue",
             size = 5,
-            hjust = -0.5, vjust = 1) +
+            hjust = 0, vjust =1.5) +
   labs(x = "Amusement Trip", y = "Relaxing Trip") +
   xlim(-1.3, 1.3)+
   theme_classic(base_size = 15)
+ggsave(file="FA_vectoren.png", width=8, height=8, dpi=900)
+getwd()
 
+       
 ######################################################################################################
 # #Comparison with MDS
 # # compute mean distances
