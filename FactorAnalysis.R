@@ -140,7 +140,7 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML2)) +
   geom_text(aes(label = City, hjust = 0.5, vjust = 1.3), size = 4.5) +
   labs(x = "Amusement trip", y = "Relaxing Trip") +
   xlim(-1.3, 1.3)+
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 17)
 ggsave(file="FA_PercMap.png", width=8, height=8, dpi=600)  
 
 ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
@@ -150,7 +150,7 @@ ggplot(data = mean_fa, aes(x = ML1, y = ML3)) +
   geom_text(aes(label = City, hjust = 0.5, vjust = 1.3), size = 4.5) +
   labs(x = "Amusement trip", y = "Culture Trip") +
   xlim(-1.3, 1.3)+
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 17)
 ggsave(file="FA_PercMap_Culture.png", width=8, height=8, dpi=600)  
 
 #----------------------------------------Preference mapping--------------------------------------
@@ -227,23 +227,25 @@ ggplot(data = subset(fa.selected, type == "point"),
   geom_point() +
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
-                   size          = 4,
+                   size          = 5,
                    box.padding   = 0.8,
                    point.padding = 0.5) +
   # Add Vectors 
   geom_segment(data = subset(fa.selected, type == "vector_relationship"),
                aes(x = -ML1, y = -ML2, xend = ML1*2, yend = ML2*2),
-               col = "midnightblue",
-               arrow = arrow(length = unit(0.5, "cm"))) +
+               #col = "midnightblue",
+               colour=c("darkred","darkgreen","darkblue"),
+               arrow = arrow(length = unit(0.7, "cm")),size = 1.0) +
   # Add vector labels
   geom_text(data = subset(fa.selected, type == "vector_relationship"),
             aes(label = City), 
-            col = "midnightblue",
+            #col = "midnightblue",
+            colour=c("darkred","darkgreen","darkblue"),
             size = 5,
-            hjust = 0, vjust =1.5) +
+            hjust = 0, vjust =3) +
   labs(x = "Amusement Trip", y = "Relaxing Trip") +
   xlim(-1.3, 1.3)+
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 17)
 ggsave(file="FA_vectoren.png", width=8, height=8, dpi=900)
 getwd()
 
@@ -261,7 +263,7 @@ length(unique(single$id_unique)) # Anzahl Ids in Single 105
 idListSingle <- unique(single$id_unique) # Liste mit den ids aus long.data
 
 # subset of in a relationship.
-,
+
 ## Add Factors M1-M3 to data.eval as new columns
 data.eval <- merge(data.eval, mean_fa, by = "City")
 head(data.eval)
@@ -272,8 +274,7 @@ profit.1 <- lm(Pref ~ -1 + ML1 + ML3,
 param <- data.frame(t(coef(profit.1)))
 param$City <- "Single"
 # reorder the columns
-param <- param[, c("City"mn0
-                   ßi, "ML1", "ML3")]
+param <- param[, c("City", "ML1", "ML3")]
 param$type <- "vector_relationship"
 param
 # combine with fa.selected
@@ -313,23 +314,23 @@ ggplot(data = subset(fa.selected, type == "point"),
   geom_point() +
   # Add text labels using ggrepel package
   geom_label_repel(aes(label = City),
-                   size          = 4,
+                   size          = 5,
                    box.padding   = 0.8,
                    point.padding = 0.5) +
   # Add Vectors 
   geom_segment(data = subset(fa.selected, type == "vector_relationship"),
                aes(x = -ML1, y = -ML3, xend = ML1*2, yend = ML3*2),
-               col = "midnightblue",
-               arrow = arrow(length = unit(0.5, "cm"))) +
+               colour=c("darkred","darkgreen","darkblue"),
+               arrow = arrow(length = unit(0.7, "cm")),size = 1.0) +
   # Add vector labels
   geom_text(data = subset(fa.selected, type == "vector_relationship"),
             aes(label = City), 
-            col = "midnightblue",
+            colour=c("darkred","darkgreen","darkblue"),
             size = 5,
-            hjust = 0, vjust =1.5) +
+            hjust = -0.3, vjust =1.7) +
   labs(x = "Amusement Trip", y = "Culture Trip") +
   xlim(-1.3, 1.3)+
-  theme_classic(base_size = 15)
+  theme_classic(base_size = 17)
 ggsave(file="FA_vectoren_culture.png", width=8, height=8, dpi=900)
 getwd()
 
